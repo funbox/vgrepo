@@ -1,13 +1,14 @@
 package meta
 
 import (
+	"strings"
+
 	"pkg.re/essentialkaos/ek.v8/fmtc"
 	"pkg.re/essentialkaos/ek.v8/fsutil"
 	"pkg.re/essentialkaos/ek.v8/jsonutil"
 	"pkg.re/essentialkaos/ek.v8/path"
 
 	"github.com/gongled/vgrepo/prefs"
-	"strings"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //

@@ -10,7 +10,6 @@ import (
 
 	"github.com/gongled/vgrepo/prefs"
 	"github.com/gongled/vgrepo/repo"
-	//"github.com/gongled/vgrepo/meta"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -128,12 +127,12 @@ func processCommand(cmd string, args []string) {
 	case CMD_HELP:
 		showUsage()
 	default:
-		fmtc.Printf("{r}Unknown command{!}\n")
+		terminal.PrintErrorMessage("Unknown command")
 		os.Exit(ERROR_UNSUPPORTED)
 	}
 
 	if err != nil {
-		fmtc.Printf(err.Error())
+		terminal.PrintErrorMessage(err.Error())
 		os.Exit(ERROR_UNSUPPORTED)
 	}
 }
@@ -168,7 +167,6 @@ func deleteCommand(args []string) error {
 		err = fmtc.Errorf("Unable to handle %v arguments\n", len(args))
 	} else {
 		name := args[0]
-
 		fmtc.Println(name)
 	}
 

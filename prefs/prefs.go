@@ -2,6 +2,7 @@ package prefs
 
 import (
 	"os"
+
 	"pkg.re/essentialkaos/ek.v8/fmtc"
 	"pkg.re/essentialkaos/ek.v8/fsutil"
 	"pkg.re/essentialkaos/ek.v8/knf"
