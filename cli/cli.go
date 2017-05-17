@@ -9,7 +9,7 @@ import (
 	"pkg.re/essentialkaos/ek.v8/usage"
 
 	"github.com/gongled/vgrepo/prefs"
-	"github.com/gongled/vgrepo/repo"
+	// "github.com/gongled/vgrepo/repo"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -40,14 +40,15 @@ const (
 )
 
 const (
-	ERROR_UNSUPPORTED = 0
+	ERROR_UNSUPPORTED      = 1
+	ERROR_INVALID_SETTINGS = 2
 )
 
 const CONFIG_FILE = "vgrepo.knf"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-var preferences *prefs.Preferences
+// var preferences *prefs.Preferences
 
 var argMap = arg.Map{
 	ARG_NO_COLOR: {Type: arg.BOOL},
@@ -98,18 +99,23 @@ func Init() {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func prepare() {
-	preferences = prefs.New(CONFIG_FILE)
+	preferences, err := prefs.New(CONFIG_FILE)
+
+	if err != nil {
+		terminal.PrintErrorMessage(err.Error())
+		os.Exit(ERROR_INVALID_SETTINGS)
+	}
+
 	errs := preferences.Validate()
 
 	if len(errs) > 0 {
 		for _, err := range errs {
 			terminal.PrintErrorMessage(err.Error())
 		}
-		os.Exit(1)
+		os.Exit(ERROR_INVALID_SETTINGS)
 	}
 }
 
-// process start source processing
 func processCommand(cmd string, args []string) {
 	var err error
 
@@ -140,23 +146,13 @@ func processCommand(cmd string, args []string) {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func addCommand(args []string) error {
-	var err error
-
 	if len(args) != 3 {
 		return fmtc.Errorf("Unable to handle %v arguments", len(args))
 	}
 
-	var (
-		//src = args[0]
-		name = args[1]
-		//version = args[2]
-	)
+	// r := repo.New(preferences, "openbox")
 
-	r := repo.New(preferences, name)
-
-	r.AddBox("qweqwe")
-
-	return err
+	return nil
 }
 
 func deleteCommand(args []string) error {
