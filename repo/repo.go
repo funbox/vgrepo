@@ -31,7 +31,7 @@ type VRepository struct {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func getVersion(version string) string {
-	var ver string = "latest"
+	ver := "latest"
 
 	if version != "" {
 		ver = version
@@ -107,7 +107,7 @@ func (r *VRepository) AddBox(src string) error {
 }
 
 func (r *VRepository) DeleteBox(version string) error {
-	var ver string = getVersion(version)
+	ver := getVersion(version)
 
 	fmtc.Println(ver)
 

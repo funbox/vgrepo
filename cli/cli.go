@@ -144,7 +144,7 @@ func addCommand(args []string) error {
 	var err error
 
 	if len(args) != 3 {
-		err = fmtc.Errorf("Unable to handle %v arguments\n", len(args))
+		err = fmtc.Errorf("Unable to handle %v arguments", len(args))
 		return err
 	}
 
@@ -167,7 +167,7 @@ func deleteCommand(args []string) error {
 	if len(args) != 1 {
 		err = fmtc.Errorf("Unable to handle %v arguments\n", len(args))
 	} else {
-		var name = args[0]
+		name := args[0]
 
 		fmtc.Println(name)
 	}
@@ -185,7 +185,7 @@ func infoCommand(args []string) error {
 	if len(args) != 1 {
 		err = fmtc.Errorf("Unable to handle %v arguments\n", len(args))
 	} else {
-		var name = args[0]
+		name := args[0]
 		fmtc.Println(name)
 	}
 
@@ -197,10 +197,10 @@ func infoCommand(args []string) error {
 func showUsage() {
 	info := usage.NewInfo(APP)
 
-	info.AddCommand(CMD_ADD, "Add image to the Vagrant repository")
+	info.AddCommand(CMD_ADD, "Add image to the Vagrant repository", "source", "name", "version")
 	info.AddCommand(CMD_LIST, "Show the list of available images")
-	info.AddCommand(CMD_DELETE, "Delete the image from the repository")
-	info.AddCommand(CMD_INFO, "Display info of the particular repository")
+	info.AddCommand(CMD_DELETE, "Delete the image from the repository", "name", "version")
+	info.AddCommand(CMD_INFO, "Display info of the particular repository", "name")
 	info.AddCommand(CMD_HELP, "Display the current help message")
 
 	info.AddOption(ARG_NO_COLOR, "Disable colors in output")
