@@ -68,7 +68,7 @@ func (r *VRepository) AddBox(src string) error {
 	var err error
 
 	//if !fsutil.IsExist(src) {
-	//	err := fmtc.Errorf("Unable to read file %s\n", src)
+	//	err := fmtc.Errorf("Unable to read file %s", src)
 	//	return err
 	//}
 
