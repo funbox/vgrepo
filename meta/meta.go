@@ -7,21 +7,14 @@ import (
 	"pkg.re/essentialkaos/ek.v8/fsutil"
 	"pkg.re/essentialkaos/ek.v8/jsonutil"
 	"pkg.re/essentialkaos/ek.v8/path"
-
-	"github.com/gongled/vgrepo/prefs"
-)
-
-// ////////////////////////////////////////////////////////////////////////////////// //
-
-const (
-	M_PATH_SUFFIX = "metadata"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 type VMetadata struct {
 	*VMetadataRepository
-	Preferences *prefs.Preferences
+	StorageURL  string
+	StoragePath string
 }
 
 type VMetadataRepository struct {
@@ -48,46 +41,46 @@ func getMetaFormat(name string) string {
 	return fmtc.Sprintf("%s.json", name)
 }
 
-func AreEqualVersions(first string, second string) bool {
-	return first == second
-}
+//func AreEqualVersions(first string, second string) bool {
+//	return first == second
+//}
 
-func NotEqualVersions(first string, second string) bool {
-	return !AreEqualVersions(first, second)
-}
+//func NotEqualVersions(first string, second string) bool {
+//	return !AreEqualVersions(first, second)
+//}
 
-func (m *VMetadata) IsEmpty() bool {
+func (m *VMetadata) IsEmptyMeta() bool {
 	return len(m.Versions) == 0
 }
 
-func (m *VMetadata) Base() string {
-	return path.Join(m.Preferences.StoragePath, m.Name)
+func (m *VMetadata) BaseMeta() string {
+	return path.Join(m.StoragePath, m.Name)
 }
 
-func (m *VMetadata) Dir() string {
-	return path.Join(m.Base(), M_PATH_SUFFIX)
+func (m *VMetadata) DirMeta() string {
+	return path.Join(m.BaseMeta(), "metadata")
 }
 
-func (m *VMetadata) Path() string {
-	return path.Join(m.Dir(), getMetaFormat(m.Name))
+func (m *VMetadata) PathMeta() string {
+	return path.Join(m.DirMeta(), getMetaFormat(m.Name))
 }
 
-func (m *VMetadata) Clone() *VMetadata {
+func (m *VMetadata) CloneMeta() *VMetadata {
 	clone := *m
 	return &clone
 }
 
-func (m *VMetadata) URL() string {
+func (m *VMetadata) URLMeta() string {
 	return fmtc.Sprintf("%s/%s/%s/%s",
-		strings.Trim(m.Preferences.StorageURL, "/"),
+		strings.Trim(m.StorageURL, "/"),
 		m.Name,
-		M_PATH_SUFFIX,
+		"metadata",
 		getMetaFormat(m.Name),
 	)
 }
 
 func (m *VMetadata) HasMeta() bool {
-	return fsutil.IsExist(m.Path())
+	return fsutil.IsExist(m.PathMeta())
 }
 
 func (m *VMetadata) AnyVersion(version string, f func(string, string) bool) bool {
@@ -100,7 +93,7 @@ func (m *VMetadata) AnyVersion(version string, f func(string, string) bool) bool
 }
 
 func (m *VMetadata) FilterVersion(version string, f func(string, string) bool) *VMetadata {
-	clone := m.Clone()
+	clone := m.CloneMeta()
 
 	versionsList := make([]*VMetadataVersion, 0)
 
@@ -117,16 +110,11 @@ func (m *VMetadata) FilterVersion(version string, f func(string, string) bool) *
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func NewMetadata(prefs *prefs.Preferences, name string) *VMetadata {
-	repo := NewMetadataRepository(name, "", make([]*VMetadataVersion, 0))
-
+func NewMetadata(storagePath, storageUrl, name, description string, versions []*VMetadataVersion) *VMetadata {
 	m := &VMetadata{
-		repo,
-		prefs,
-	}
-
-	if m.HasMeta() {
-		m, _ = m.Read()
+		StoragePath:         storagePath,
+		StorageURL:          storageUrl,
+		VMetadataRepository: NewMetadataRepository(name, description, versions),
 	}
 
 	return m
@@ -142,33 +130,35 @@ func NewMetadataRepository(name string, description string, versions []*VMetadat
 	return m
 }
 
-func NewMetadataVersion(version string, providers []*VMetadataProvider) *VMetadataVersion {
-	m := &VMetadataVersion{
-		Version:   version,
-		Providers: providers,
-	}
-
-	return m
-}
-
-func NewMetadataProvider(name string, checksum string, checksumType string, url string) *VMetadataProvider {
-	m := &VMetadataProvider{
-		Name:         name,
-		Checksum:     checksum,
-		ChecksumType: checksumType,
-		URL:          url,
-	}
-
-	return m
-}
+//func NewMetadataVersion(version string, providers []*VMetadataProvider) *VMetadataVersion {
+//	m := &VMetadataVersion{
+//		Version:   version,
+//		Providers: providers,
+//	}
+//
+//	return m
+//}
+//
+//func NewMetadataProvider(name string, checksum string, checksumType string, url string) *VMetadataProvider {
+//	m := &VMetadataProvider{
+//		Name:         name,
+//		Checksum:     checksum,
+//		ChecksumType: checksumType,
+//		URL:          url,
+//	}
+//
+//	return m
+//}
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func (m *VMetadata) Read() (*VMetadata, error) {
-	return m.LoadFromFile(m.Path())
+func (m *VMetadata) ReadMeta() (*VMetadata, error) {
+	f, err := m.LoadFromFile(m.PathMeta())
+
+	return NewMetadata(m.StoragePath, m.StorageURL, f.Name, f.Description, f.Versions), err
 }
 
-func (m *VMetadata) LoadFromFile(metaPath string) (*VMetadata, error) {
+func (m *VMetadata) LoadFromFile(metaPath string) (*VMetadataRepository, error) {
 	if !fsutil.IsExist(metaPath) {
 		return nil, fmtc.Errorf("Metadata %s does not exist", metaPath)
 	}
@@ -181,13 +171,11 @@ func (m *VMetadata) LoadFromFile(metaPath string) (*VMetadata, error) {
 		return nil, err
 	}
 
-	m.VMetadataRepository = info
-
-	return m, err
+	return info, err
 }
 
-func (m *VMetadata) Write(metaPath string) error {
-	return jsonutil.EncodeToFile(metaPath, m)
+func (m *VMetadata) WriteMeta(metaPath string) error {
+	return jsonutil.EncodeToFile(metaPath, m.VMetadataRepository)
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

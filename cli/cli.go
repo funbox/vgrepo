@@ -8,8 +8,8 @@ import (
 	"pkg.re/essentialkaos/ek.v8/terminal"
 	"pkg.re/essentialkaos/ek.v8/usage"
 
-	"github.com/gongled/vgrepo/prefs"
-	// "github.com/gongled/vgrepo/repo"
+	"github.com/gongled/vgrepo/repo"
+	"pkg.re/essentialkaos/ek.v8/knf"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -34,6 +34,11 @@ const (
 )
 
 const (
+	KNF_STORAGE_URL  = "storage:url"
+	KNF_STORAGE_PATH = "storage:path"
+)
+
+const (
 	ARG_NO_COLOR = "nc:no-color"
 	ARG_HELP     = "h:help"
 	ARG_VER      = "v:version"
@@ -47,8 +52,6 @@ const (
 const CONFIG_FILE = "vgrepo.knf"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
-
-// var preferences *prefs.Preferences
 
 var argMap = arg.Map{
 	ARG_NO_COLOR: {Type: arg.BOOL},
@@ -99,19 +102,10 @@ func Init() {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func prepare() {
-	preferences, err := prefs.New(CONFIG_FILE)
+	err := knf.Global(CONFIG_FILE)
 
 	if err != nil {
 		terminal.PrintErrorMessage(err.Error())
-		os.Exit(ERROR_INVALID_SETTINGS)
-	}
-
-	errs := preferences.Validate()
-
-	if len(errs) > 0 {
-		for _, err := range errs {
-			terminal.PrintErrorMessage(err.Error())
-		}
 		os.Exit(ERROR_INVALID_SETTINGS)
 	}
 }
@@ -150,14 +144,22 @@ func addCommand(args []string) error {
 		return fmtc.Errorf("Unable to handle %v arguments", len(args))
 	}
 
-	// r := repo.New(preferences, "openbox")
+	r := repo.NewRepository(
+		knf.GetS(KNF_STORAGE_PATH),
+		knf.GetS(KNF_STORAGE_URL),
+		"openbox",
+	)
+
+	r.AddBox(args[0])
+
+	fmtc.Println(r.Name)
 
 	return nil
 }
 
 func deleteCommand(args []string) error {
 	if len(args) != 1 {
-		return fmtc.Errorf("Unable to handle %v arguments\n", len(args))
+		return fmtc.Errorf("Unable to handle %v arguments", len(args))
 	} else {
 		name := args[0]
 		fmtc.Println(name)
@@ -172,7 +174,7 @@ func listCommand() error {
 
 func infoCommand(args []string) error {
 	if len(args) != 1 {
-		return fmtc.Errorf("Unable to handle %v arguments\n", len(args))
+		return fmtc.Errorf("Unable to handle %v arguments", len(args))
 	} else {
 		name := args[0]
 		fmtc.Println(name)
