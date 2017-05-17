@@ -187,9 +187,7 @@ func (m *VMetadata) LoadFromFile(metaPath string) (*VMetadata, error) {
 }
 
 func (m *VMetadata) Write(metaPath string) error {
-	err := jsonutil.EncodeToFile(metaPath, m)
-
-	return err
+	return jsonutil.EncodeToFile(metaPath, m)
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

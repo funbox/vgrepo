@@ -143,8 +143,7 @@ func addCommand(args []string) error {
 	var err error
 
 	if len(args) != 3 {
-		err = fmtc.Errorf("Unable to handle %v arguments", len(args))
-		return err
+		return fmtc.Errorf("Unable to handle %v arguments", len(args))
 	}
 
 	var (
@@ -161,16 +160,14 @@ func addCommand(args []string) error {
 }
 
 func deleteCommand(args []string) error {
-	var err error
-
 	if len(args) != 1 {
-		err = fmtc.Errorf("Unable to handle %v arguments\n", len(args))
+		return fmtc.Errorf("Unable to handle %v arguments\n", len(args))
 	} else {
 		name := args[0]
 		fmtc.Println(name)
 	}
 
-	return err
+	return nil
 }
 
 func listCommand() error {
@@ -178,16 +175,14 @@ func listCommand() error {
 }
 
 func infoCommand(args []string) error {
-	var err error
-
 	if len(args) != 1 {
-		err = fmtc.Errorf("Unable to handle %v arguments\n", len(args))
+		return fmtc.Errorf("Unable to handle %v arguments\n", len(args))
 	} else {
 		name := args[0]
 		fmtc.Println(name)
 	}
 
-	return err
+	return nil
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

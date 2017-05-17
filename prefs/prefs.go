@@ -1,8 +1,6 @@
 package prefs
 
 import (
-	"os"
-
 	"pkg.re/essentialkaos/ek.v8/fmtc"
 	"pkg.re/essentialkaos/ek.v8/fsutil"
 	"pkg.re/essentialkaos/ek.v8/knf"
@@ -38,12 +36,11 @@ func (p *Preferences) Validate() []error {
 	return errs
 }
 
-func New(configPath string) *Preferences {
+func New(configPath string) (*Preferences, error) {
 	cnf, err := knf.Read(configPath)
 
 	if err != nil {
-		fmtc.Printf(err.Error())
-		os.Exit(1)
+		return nil, fmtc.Errorf("Unable to read settings")
 	}
 
 	p := &Preferences{
@@ -51,7 +48,7 @@ func New(configPath string) *Preferences {
 		StoragePath: cnf.GetS(STORAGE_PATH),
 	}
 
-	return p
+	return p, err
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
