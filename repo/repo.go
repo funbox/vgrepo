@@ -4,8 +4,8 @@ import (
 	"path"
 	"pkg.re/essentialkaos/ek/fmtc"
 
-	"github.com/gongled/vgrepo/prefs"
 	"github.com/gongled/vgrepo/meta"
+	"github.com/gongled/vgrepo/prefs"
 	"pkg.re/essentialkaos/ek/fsutil"
 	"strings"
 	//"os"
@@ -18,13 +18,13 @@ import (
 
 const (
 	R_PATH_SUFFIX string = "boxes"
-	R_HASH_FUNC string   = "sha256"
+	R_HASH_FUNC   string = "sha256"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 type VRepository struct {
-	Meta *meta.VMetadata
+	Meta        *meta.VMetadata
 	Preferences *prefs.Preferences
 }
 
@@ -122,7 +122,7 @@ func (r *VRepository) Destroy() error {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func New(prefs *prefs.Preferences, name string) (*VRepository) {
+func New(prefs *prefs.Preferences, name string) *VRepository {
 	r := &VRepository{
 		meta.NewMetadata(prefs, name),
 		prefs,

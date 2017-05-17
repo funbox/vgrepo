@@ -1,10 +1,10 @@
 package prefs
 
 import (
-	"pkg.re/essentialkaos/ek.v8/knf"
-	"pkg.re/essentialkaos/ek.v8/fmtc"
 	"os"
+	"pkg.re/essentialkaos/ek.v8/fmtc"
 	"pkg.re/essentialkaos/ek.v8/fsutil"
+	"pkg.re/essentialkaos/ek.v8/knf"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -17,7 +17,7 @@ const (
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 type Preferences struct {
-	StorageURL string
+	StorageURL  string
 	StoragePath string
 }
 
@@ -37,7 +37,7 @@ func (p *Preferences) Validate() []error {
 	return errs
 }
 
-func New(configPath string) (*Preferences) {
+func New(configPath string) *Preferences {
 	cnf, err := knf.Read(configPath)
 
 	if err != nil {
@@ -46,7 +46,7 @@ func New(configPath string) (*Preferences) {
 	}
 
 	p := &Preferences{
-		StorageURL: cnf.GetS(STORAGE_URL),
+		StorageURL:  cnf.GetS(STORAGE_URL),
 		StoragePath: cnf.GetS(STORAGE_PATH),
 	}
 

@@ -24,14 +24,14 @@ type VMetadata struct {
 }
 
 type VMetadataRepository struct {
-	Name        string             	`json:"name"`
-	Description string             	`json:"description"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
 	Versions    []*VMetadataVersion `json:"versions"`
 }
 
 type VMetadataVersion struct {
-	Version   string              	`json:"version"`
-	Providers []*VMetadataProvider 	`json:"providers"`
+	Version   string               `json:"version"`
+	Providers []*VMetadataProvider `json:"providers"`
 }
 
 type VMetadataProvider struct {
@@ -89,7 +89,7 @@ func (m *VMetadata) HasMeta() bool {
 	return fsutil.IsExist(m.Path())
 }
 
-func (m *VMetadata) AnyVersion(version string, f func (string, string) bool) bool {
+func (m *VMetadata) AnyVersion(version string, f func(string, string) bool) bool {
 	for _, v := range m.Versions {
 		if f(v.Version, version) {
 			return true
@@ -109,7 +109,7 @@ func (m *VMetadata) FilterVersion(version string, f func(string, string) bool) *
 		}
 	}
 
-	 clone.Versions = versionsList
+	clone.Versions = versionsList
 
 	return clone
 }
@@ -143,7 +143,7 @@ func NewMetadataRepository(name string, description string, versions []*VMetadat
 
 func NewMetadataVersion(version string, providers []*VMetadataProvider) *VMetadataVersion {
 	m := &VMetadataVersion{
-		Version: version,
+		Version:   version,
 		Providers: providers,
 	}
 
@@ -152,10 +152,10 @@ func NewMetadataVersion(version string, providers []*VMetadataProvider) *VMetada
 
 func NewMetadataProvider(name string, checksum string, checksumType string, url string) *VMetadataProvider {
 	m := &VMetadataProvider{
-		Name: name,
-		Checksum: checksum,
+		Name:         name,
+		Checksum:     checksum,
 		ChecksumType: checksumType,
-		URL: url,
+		URL:          url,
 	}
 
 	return m

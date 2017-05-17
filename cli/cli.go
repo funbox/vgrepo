@@ -5,8 +5,8 @@ import (
 
 	"pkg.re/essentialkaos/ek.v8/arg"
 	"pkg.re/essentialkaos/ek.v8/fmtc"
-	"pkg.re/essentialkaos/ek.v8/usage"
 	"pkg.re/essentialkaos/ek.v8/terminal"
+	"pkg.re/essentialkaos/ek.v8/usage"
 
 	"github.com/gongled/vgrepo/prefs"
 	"github.com/gongled/vgrepo/repo"
