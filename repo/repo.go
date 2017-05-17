@@ -45,7 +45,7 @@ func getBoxFormat(name string, version string) string {
 }
 
 func (r *VRepository) Base() string {
-	return path.Join(r.Preferences.StoragePath, r.Meta.name)
+	return path.Join(r.Preferences.StoragePath, r.Meta.Name)
 }
 
 func (r *VRepository) Dir() string {
@@ -53,15 +53,15 @@ func (r *VRepository) Dir() string {
 }
 
 func (r *VRepository) Path(version string) string {
-	return path.Join(r.Dir(), getBoxFormat(r.Meta.name, version))
+	return path.Join(r.Dir(), getBoxFormat(r.Meta.Name, version))
 }
 
 func (r *VRepository) URL(version string) string {
 	return fmtc.Sprintf("%s/%s/%s/%s",
 		strings.Trim(r.Preferences.StorageURL, "/"),
-		r.Meta.name,
+		r.Meta.Name,
 		R_PATH_SUFFIX,
-		getBoxFormat(r.Meta.name, version),
+		getBoxFormat(r.Meta.Name, version),
 	)
 }
 
@@ -88,8 +88,8 @@ func (r *VRepository) AddBox(src string) error {
 	//}
 
 	fmtc.Printf("Reading metadata...\n")
-	r.Meta.name = "Hello, world"
-	fmtc.Println(r.Meta.name)
+	r.Meta.Name = "Hello, world"
+	fmtc.Println(r.Meta.Name)
 
 	//if fsutil.IsExist(ver) {
 	//	err := fmtc.Errorf("File %s is already exist", ver)
