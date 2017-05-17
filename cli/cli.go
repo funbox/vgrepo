@@ -185,38 +185,45 @@ func infoCommand(args []string) error {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func showUsage() {
-	info := usage.NewInfo(APP)
-
+func setUsageCommands(info *usage.Info) {
 	info.AddCommand(CMD_ADD, "Add image to the Vagrant repository", "source", "name", "version")
 	info.AddCommand(CMD_LIST, "Show the list of available images")
 	info.AddCommand(CMD_DELETE, "Delete the image from the repository", "name", "version")
 	info.AddCommand(CMD_INFO, "Display info of the particular repository", "name")
 	info.AddCommand(CMD_HELP, "Display the current help message")
+}
 
+func setUsageOptions(info *usage.Info) {
 	info.AddOption(ARG_NO_COLOR, "Disable colors in output")
 	info.AddOption(ARG_HELP, "Show this help message")
 	info.AddOption(ARG_VER, "Show version")
+}
 
+func setUsageExamples(info *usage.Info) {
 	info.AddExample(
 		"add $HOME/powerbox-1.0.0.box powerbox 1.1.0",
 		"Add image to the Vagrant repository",
 	)
-
 	info.AddExample(
 		"list",
 		"Show the list of available images",
 	)
-
 	info.AddExample(
 		"remove powerbox 1.1.0",
 		"Remove the image from the repository",
 	)
-
 	info.AddExample(
 		"info powerbox",
 		"Remove the image from the repository",
 	)
+}
+
+func showUsage() {
+	info := usage.NewInfo(APP)
+
+	setUsageCommands(info)
+	setUsageOptions(info)
+	setUsageExamples(info)
 
 	info.Render()
 }
