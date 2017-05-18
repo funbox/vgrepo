@@ -100,7 +100,7 @@ func (s VMetadataVersionsList) Less(i, j int) bool {
 	first, _ := version.Parse(s[i].Version)
 	second, _ := version.Parse(s[j].Version)
 
-	return first.Greater(second)
+	return first.Less(second)
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -136,8 +136,8 @@ func (m *VMetadata) CountVersions() int {
 	return len(m.Versions)
 }
 
-// LatestVersion returns the latest version from the list
-func (m *VMetadata) LatestVersion() string {
+// OldestVersion returns the oldest version from the list
+func (m *VMetadata) OldestVersion() string {
 	if !m.IsEmptyMeta() {
 		return m.Versions[0].Version
 	} else {
@@ -145,8 +145,8 @@ func (m *VMetadata) LatestVersion() string {
 	}
 }
 
-// OldestVersion returns the oldest version from the list
-func (m *VMetadata) OldestVersion() string {
+// LatestVersion returns the latest version from the list
+func (m *VMetadata) LatestVersion() string {
 	if !m.IsEmptyMeta() {
 		return m.Versions[m.CountVersions()-1].Version
 	} else {
