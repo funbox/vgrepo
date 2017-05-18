@@ -76,9 +76,7 @@ func (r *VRepository) AddBox(src string) error {
 	//	r.Meta.Description = metadata.Description
 	//}
 
-	fmtc.Printf("Reading metadata...\n")
-	r.Name = "qweqwe"
-	fmtc.Println(r.Name)
+	// fmtc.Printf("Reading metadata...\n")
 
 	//if fsutil.IsExist(ver) {
 	//	err := fmtc.Errorf("File %s is already exist", ver)
@@ -115,9 +113,12 @@ func NewRepository(storagePath string, storageUrl string, name string) *VReposit
 	r := meta.NewMetadata(
 		storagePath,
 		storageUrl,
-		name,
-		"",
-		make([]*meta.VMetadataVersion, 0))
+		meta.NewMetadataRepository(
+			name,
+			"",
+			make([]*meta.VMetadataVersion, 0),
+		),
+	)
 
 	m := &VRepository{r}
 

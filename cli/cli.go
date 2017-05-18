@@ -150,9 +150,7 @@ func addCommand(args []string) error {
 		"openbox",
 	)
 
-	r.AddBox(args[0])
-
-	fmtc.Println(r.Name)
+	fmtc.Println(r.OldestVersion(), r.LatestVersion())
 
 	return nil
 }
