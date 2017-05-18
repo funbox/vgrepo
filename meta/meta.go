@@ -43,38 +43,6 @@ type VMetadataProvider struct {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-// Len implements interface method for Sort
-func (s VMetadataVersionsList) Len() int {
-	return len(s)
-}
-
-// Swap implements interface method for Sort
-func (s VMetadataVersionsList) Swap(i, j int) {
-	*s[i], *s[j] = *s[j], *s[i]
-}
-
-// Less implements interface method for Sort
-func (s VMetadataVersionsList) Less(i, j int) bool {
-	first, _ := version.Parse(s[i].Version)
-	second, _ := version.Parse(s[j].Version)
-
-	return first.Greater(second)
-}
-
-// ////////////////////////////////////////////////////////////////////////////////// //
-
-// equalVersions returns true if versions are equal
-func equalVersions(first string, second string) bool {
-	return first == second
-}
-
-// notEqualVersions returns true if versions are not equal
-func notEqualVersions(first string, second string) bool {
-	return !equalVersions(first, second)
-}
-
-// ////////////////////////////////////////////////////////////////////////////////// //
-
 // nameMeta returns name of the metadata file with extension
 func (m *VMetadata) nameMeta() string {
 	return fmtc.Sprintf("%s.json", m.Name)
@@ -117,14 +85,51 @@ func (m *VMetadata) IsEmptyMeta() bool {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-// IsVersionExists returns true if version if present on the list
-func (m *VMetadata) IsVersionExists(version string, f func(string, string) bool) bool {
+// Len implements interface method for Sort
+func (s VMetadataVersionsList) Len() int {
+	return len(s)
+}
+
+// Swap implements interface method for Sort
+func (s VMetadataVersionsList) Swap(i, j int) {
+	*s[i], *s[j] = *s[j], *s[i]
+}
+
+// Less implements interface method for Sort
+func (s VMetadataVersionsList) Less(i, j int) bool {
+	first, _ := version.Parse(s[i].Version)
+	second, _ := version.Parse(s[j].Version)
+
+	return first.Greater(second)
+}
+
+// ////////////////////////////////////////////////////////////////////////////////// //
+
+// equalVersions returns true if versions are equal
+func equalVersions(first string, second string) bool {
+	return first == second
+}
+
+// notEqualVersions returns true if versions are not equal
+func notEqualVersions(first string, second string) bool {
+	return !equalVersions(first, second)
+}
+
+// ////////////////////////////////////////////////////////////////////////////////// //
+
+// AnyVersions returns true if version if present on the list
+func (m *VMetadata) AnyVersions(version string, f func(string, string) bool) bool {
 	for _, v := range m.Versions {
 		if f(v.Version, version) {
 			return true
 		}
 	}
 	return false
+}
+
+// IsVersionExist returns true if version is already exist in the metadata
+func (m *VMetadata) IsVersionExist(version string) bool {
+	return m.AnyVersions(version, equalVersions)
 }
 
 func (m *VMetadata) CountVersions() int {
@@ -154,6 +159,21 @@ func (m *VMetadata) OldestVersion() string {
 // SortVersions sorts list of versions in the metadata
 func (m *VMetadata) SortVersions() {
 	sort.Sort(VMetadataVersionsList(m.Versions))
+}
+
+// AddVersion adds version to the metadata list
+func (m *VMetadata) AddVersion(version *VMetadataVersion) error {
+	if m.IsVersionExist(version.Version) {
+		return fmtc.Errorf(
+			"Cannot add version to metadata: version %s is already exist",
+			version.Version,
+		)
+	}
+
+	m.Versions = append(m.Versions, version)
+	m.SortVersions()
+
+	return nil
 }
 
 // FilterVersion filters list of versions in the metadata by given function
@@ -201,26 +221,26 @@ func NewMetadataRepository(name string, description string, versions VMetadataVe
 }
 
 // NewMetadataVersion returns new VMetadataVersion struct
-//func NewMetadataVersion(version string, providers VMetadataProvidersList) *VMetadataVersion {
-//	m := &VMetadataVersion{
-//		Version:   version,
-//		Providers: providers,
-//	}
-//
-//	return m
-//}
+func NewMetadataVersion(version string, providers VMetadataProvidersList) *VMetadataVersion {
+	m := &VMetadataVersion{
+		Version:   version,
+		Providers: providers,
+	}
+
+	return m
+}
 
 // NewMetadataProvider returns new VMetadataProvider struct
-//func NewMetadataProvider(name string, checksum string, checksumType string, url string) *VMetadataProvider {
-//	m := &VMetadataProvider{
-//		Name:         name,
-//		Checksum:     checksum,
-//		ChecksumType: checksumType,
-//		URL:          url,
-//	}
-//
-//	return m
-//}
+func NewMetadataProvider(name string, checksum string, checksumType string, url string) *VMetadataProvider {
+	m := &VMetadataProvider{
+		Name:         name,
+		Checksum:     checksum,
+		ChecksumType: checksumType,
+		URL:          url,
+	}
+
+	return m
+}
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
@@ -241,26 +261,28 @@ func (m *VMetadata) loadFromFile(metaPath string) (*VMetadataRepository, error) 
 	return info, err
 }
 
+
+// dumpToFile dumps VMetadata struct on the metadata file on the disk
+func (m *VMetadata) dumpToFile(metaPath string) error {
+	m.SortVersions()
+
+	return jsonutil.EncodeToFile(metaPath, m.VMetadataRepository)
+}
+
 // ReadMeta returns new VMetadata struct which was read from the metadata file
 func (m *VMetadata) ReadMeta() (*VMetadata, error) {
-	f, err := m.loadFromFile(m.PathMeta())
+	md, err := m.loadFromFile(m.PathMeta())
 
 	return NewMetadata(
 		m.StoragePath,
 		m.StorageURL,
-		NewMetadataRepository(
-			f.Name,
-			f.Description,
-			f.Versions,
-		),
+		md,
 	), err
 }
 
-// WriteMeta dumps VMetadata struct on the metadata file on the disk
-func (m *VMetadata) WriteMeta(metaPath string) error {
-	m.SortVersions()
-
-	return jsonutil.EncodeToFile(metaPath, m.VMetadataRepository)
+// WriteMeta dumps VMetadata struct on the linked metadata file on the disk
+func (m *VMetadata) WriteMeta() error {
+	return m.dumpToFile(m.PathMeta())
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

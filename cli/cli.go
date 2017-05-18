@@ -10,6 +10,7 @@ import (
 	"pkg.re/essentialkaos/ek.v8/usage"
 
 	"github.com/gongled/vgrepo/repo"
+	"github.com/gongled/vgrepo/meta"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -144,13 +145,28 @@ func addCommand(args []string) error {
 		return fmtc.Errorf("Unable to handle %v arguments", len(args))
 	}
 
-	r := repo.NewRepository(
+	repository := repo.NewRepository(
 		knf.GetS(KNF_STORAGE_PATH),
 		knf.GetS(KNF_STORAGE_URL),
 		"openbox",
 	)
 
-	fmtc.Println(r.OldestVersion(), r.LatestVersion())
+	providers := append(make(meta.VMetadataProvidersList, 0),
+		meta.NewMetadataProvider(
+			"virtualbox",
+			"",
+			"",
+			"",
+		),
+	)
+
+	version := meta.NewMetadataVersion("4.0.0", providers)
+
+	fmtc.Printf("Before: %d\n", repository.CountVersions())
+
+	repository.AddVersion(version)
+
+	fmtc.Printf("After: %d\n", repository.CountVersions())
 
 	return nil
 }
