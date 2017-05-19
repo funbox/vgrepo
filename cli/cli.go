@@ -6,11 +6,11 @@ import (
 	"pkg.re/essentialkaos/ek.v9/fmtc"
 	"pkg.re/essentialkaos/ek.v9/knf"
 	"pkg.re/essentialkaos/ek.v9/options"
+	"pkg.re/essentialkaos/ek.v9/fmtutil/table"
 	"pkg.re/essentialkaos/ek.v9/terminal"
 	"pkg.re/essentialkaos/ek.v9/usage"
 
 	"github.com/gongled/vgrepo/repo"
-	"pkg.re/essentialkaos/ek.v9/fmtutil/table"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //

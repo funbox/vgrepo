@@ -1,15 +1,14 @@
 package repo
 
 import (
-	//"os"
 	"strings"
 
 	"pkg.re/essentialkaos/ek.v9/fmtc"
+	"pkg.re/essentialkaos/ek.v9/fsutil"
 	"pkg.re/essentialkaos/ek.v9/hash"
 	"pkg.re/essentialkaos/ek.v9/path"
 
 	"github.com/gongled/vgrepo/meta"
-	"pkg.re/essentialkaos/ek/fsutil"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
