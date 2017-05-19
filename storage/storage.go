@@ -1,1 +1,11 @@
 package storage
+
+import (
+	"github.com/gongled/vgrepo/repo"
+)
+
+// ////////////////////////////////////////////////////////////////////////////////// //
+
+type VStorage struct {
+	repo.VRepositoryList
+}

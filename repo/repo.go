@@ -1,14 +1,15 @@
 package repo
 
 import (
-	"os"
-	"path"
+	//"os"
 	"strings"
 
-	"pkg.re/essentialkaos/ek.v8/fmtc"
-	"pkg.re/essentialkaos/ek.v8/fsutil"
+	"pkg.re/essentialkaos/ek.v9/fmtc"
+	"pkg.re/essentialkaos/ek.v9/hash"
+	"pkg.re/essentialkaos/ek.v9/path"
 
 	"github.com/gongled/vgrepo/meta"
+	"pkg.re/essentialkaos/ek/fsutil"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -17,117 +18,121 @@ type VRepository struct {
 	*meta.VMetadata
 }
 
+type VRepositoryList []*VRepository
+
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func getVersion(version string) string {
-	ver := "latest"
-
-	if version != "" {
-		ver = version
-	}
-
-	return ver
-}
-
-func getBoxFormat(name string, version string) string {
-	return fmtc.Sprintf("%s-%s.box", name, getVersion(version))
-}
-
 func (r *VRepository) BaseRepo() string {
-	return path.Join(r.StoragePath, r.Name)
+	return r.StoragePath
 }
 
 func (r *VRepository) DirRepo() string {
-	return path.Join(r.BaseRepo(), "boxes")
+	return path.Join(r.BaseRepo(), "packages")
 }
 
-func (r *VRepository) PathRepo(version string) string {
-	return path.Join(r.DirRepo(), getBoxFormat(r.Name, version))
+func (r *VRepository) PathRepo(pkg *VPackage) string {
+	return path.Join(r.DirRepo(), pkg.PathBoxFormat())
 }
 
-func (r *VRepository) URLRepo(version string) string {
-	return fmtc.Sprintf("%s/%s/%s/%s",
+func (r *VRepository) URLRepo(pkg *VPackage) string {
+	return fmtc.Sprintf("%s/%s",
 		strings.Trim(r.StorageURL, "/"),
-		r.Name,
-		"boxes",
-		getBoxFormat(r.Name, version),
+		pkg.URLBoxFormat(),
 	)
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func (r *VRepository) HasBox(version string) bool {
-	return fsutil.IsExist(r.PathRepo(version))
-}
-
-func (r *VRepository) IsExist(version string) bool {
-	return r.HasMeta() && r.HasBox(version)
-}
-
-func (r *VRepository) AddBox(src string) error {
-	var err error
-
-	//if !fsutil.IsExist(src) {
-	//	err := fmtc.Errorf("Unable to read file %s", src)
-	//	return err
-	//}
-
-	//if r.Meta.IsEmptyMeta() {
-	//	r.Meta.Description = metadata.Description
-	//}
-
-	// fmtc.Printf("Reading metadata...\n")
-
-	//if fsutil.IsExist(ver) {
-	//	err := fmtc.Errorf("File %s is already exist", ver)
-	//	return err
-	//}
-	//
-	//if !fsutil.IsDir(basedir) {
-	//	err := os.MkdirAll(basedir, 0755)
-	//	return err
-	//}
-
-	//err = fsutil2.CopyFile(src, dst)
-
-	return err
-}
-
-func (r *VRepository) DeleteBox(version string) error {
-	ver := getVersion(version)
-
-	fmtc.Println(ver)
-
+func (r *VRepository) CreateRepo() error {
 	return nil
 }
 
-func (r *VRepository) Destroy() error {
-	err := os.RemoveAll(r.BaseRepo())
+// ////////////////////////////////////////////////////////////////////////////////// //
+
+func (r *VRepository) copyPackage(src string, dst string) error {
+	var err error
 
 	return err
+}
+
+func (r *VRepository) AddPackage(src string, pkg *VPackage) error {
+	r.CreateRepo()
+
+	// dst := r.PathRepo(pkg)
+	dst := src
+
+	if !fsutil.IsExist(src) {
+		return fmtc.Errorf("File %s does not exist", src)
+	}
+
+	var err error
+	//err = r.copyPackage(src, dst)
+	//
+	//if err != nil {
+	//	return fmtc.Errorf(
+	//		"Unable to copy package from %s to %s",
+	//		src,
+	//		dst,
+	//	)
+	//}
+
+	providerList := make(meta.VMetadataProvidersList, 0)
+
+	provider := meta.NewMetadataProvider(
+		pkg.Provider,
+		hash.FileHash(dst),
+		"sha256",
+		r.URLRepo(pkg),
+	)
+
+	providerList = append(providerList, provider)
+
+	version := meta.NewMetadataVersion(pkg.Version, providerList)
+
+	r.AddVersion(version)
+	// r.WriteMeta()
+
+	for _, d := range r.Versions {
+		fmtc.Println(d.Version)
+		for _, q := range d.Providers {
+			fmtc.Println(q.Name, q.Checksum, q.ChecksumType, q.URL)
+		}
+	}
+
+	return err
+}
+
+func (r *VRepository) ListPackages() *VPackageList {
+	return nil
+}
+
+func (r *VRepository) RemovePackage(pkg *VPackage) error {
+	// err := os.RemoveAll(r.PathRepo(pkg))
+	fmtc.Println(r.PathRepo(pkg))
+
+	return nil
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func NewRepository(storagePath string, storageUrl string, name string) *VRepository {
-	r := meta.NewMetadata(
+	m := meta.NewMetadata(
 		storagePath,
 		storageUrl,
 		meta.NewMetadataRepository(
 			name,
 			"",
-			make([]*meta.VMetadataVersion, 0),
+			make(meta.VMetadataVersionsList, 0),
 		),
 	)
 
-	m := &VRepository{r}
+	r := &VRepository{m}
 
 	if m.HasMeta() {
-		// TODO: remove returning value *VMetadataRepository
-		m.VMetadata, _ = m.ReadMeta()
+		r.VMetadata, _ = r.ReadMeta()
 	}
 
-	return m
+	return r
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

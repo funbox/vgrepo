@@ -3,10 +3,10 @@ package meta
 import (
 	"strings"
 
-	"pkg.re/essentialkaos/ek.v8/fmtc"
-	"pkg.re/essentialkaos/ek.v8/fsutil"
-	"pkg.re/essentialkaos/ek.v8/jsonutil"
-	"pkg.re/essentialkaos/ek.v8/path"
+	"pkg.re/essentialkaos/ek.v9/fmtc"
+	"pkg.re/essentialkaos/ek.v9/fsutil"
+	"pkg.re/essentialkaos/ek.v9/jsonutil"
+	"pkg.re/essentialkaos/ek.v9/path"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -92,7 +92,6 @@ func (m *VMetadata) loadFromFile(metaPath string) (*VMetadataRepository, error) 
 
 	return info, err
 }
-
 
 // dumpToFile dumps VMetadata struct on the metadata file on the disk
 func (m *VMetadata) dumpToFile(metaPath string) error {

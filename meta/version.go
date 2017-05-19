@@ -4,7 +4,7 @@ import (
 	"sort"
 
 	"pkg.re/essentialkaos/ek.v9/fmtc"
-	"pkg.re/essentialkaos/ek/version"
+	"pkg.re/essentialkaos/ek.v9/sortutil"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -30,10 +30,7 @@ func (s VMetadataVersionsList) Swap(i, j int) {
 
 // Less implements interface method for Sort
 func (s VMetadataVersionsList) Less(i, j int) bool {
-	first, _ := version.Parse(s[i].Version)
-	second, _ := version.Parse(s[j].Version)
-
-	return first.Less(second)
+	return sortutil.VersionCompare(s[i].Version, s[j].Version)
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

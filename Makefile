@@ -16,8 +16,7 @@ vgrepo:
 
 deps:
 	git config --global http.https://pkg.re.followRedirects true
-	go get -d -v pkg.re/essentialkaos/ek
-	go get -d -v pkg.re/essentialkaos/ek.v8
+	go get -d -v pkg.re/essentialkaos/ek.v9
 
 fmt:
 	find . -name "*.go" -exec gofmt -s -w {} \;

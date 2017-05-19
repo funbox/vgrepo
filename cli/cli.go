@@ -3,14 +3,14 @@ package cli
 import (
 	"os"
 
-	"pkg.re/essentialkaos/ek.v8/arg"
-	"pkg.re/essentialkaos/ek.v8/fmtc"
-	"pkg.re/essentialkaos/ek.v8/knf"
-	"pkg.re/essentialkaos/ek.v8/terminal"
-	"pkg.re/essentialkaos/ek.v8/usage"
+	"pkg.re/essentialkaos/ek.v9/fmtc"
+	"pkg.re/essentialkaos/ek.v9/knf"
+	"pkg.re/essentialkaos/ek.v9/options"
+	"pkg.re/essentialkaos/ek.v9/terminal"
+	"pkg.re/essentialkaos/ek.v9/usage"
 
 	"github.com/gongled/vgrepo/repo"
-	"github.com/gongled/vgrepo/meta"
+	"pkg.re/essentialkaos/ek.v9/fmtutil/table"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -40,6 +40,7 @@ const (
 )
 
 const (
+	ARG_PROVIDER = "p:provider"
 	ARG_NO_COLOR = "nc:no-color"
 	ARG_HELP     = "h:help"
 	ARG_VER      = "v:version"
@@ -54,16 +55,16 @@ const CONFIG_FILE = "vgrepo.knf"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-var argMap = arg.Map{
-	ARG_NO_COLOR: {Type: arg.BOOL},
-	ARG_HELP:     {Type: arg.BOOL, Alias: "u:usage"},
-	ARG_VER:      {Type: arg.BOOL, Alias: "ver"},
+var optionsMap = options.Map{
+	ARG_NO_COLOR: {Type: options.BOOL},
+	ARG_HELP:     {Type: options.BOOL, Alias: "u:usage"},
+	ARG_VER:      {Type: options.BOOL, Alias: "ver"},
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func Init() {
-	args, errs := arg.Parse(argMap)
+	opts, errs := options.Parse(optionsMap)
 
 	if len(errs) != 0 {
 		fmtc.Println("Arguments parsing errors:")
@@ -75,28 +76,28 @@ func Init() {
 		os.Exit(1)
 	}
 
-	if arg.GetB(ARG_NO_COLOR) {
+	if options.GetB(ARG_NO_COLOR) {
 		fmtc.DisableColors = true
 	}
 
-	if arg.GetB(ARG_VER) {
+	if options.GetB(ARG_VER) {
 		showAbout()
 		return
 	}
 
-	if arg.GetB(ARG_HELP) || len(args) == 0 {
+	if options.GetB(ARG_HELP) || len(opts) == 0 {
 		showUsage()
 		return
 	}
 
-	switch len(args) {
+	switch len(opts) {
 	case 0:
 		showUsage()
 		return
 	case 1:
-		processCommand(args[0], nil)
+		processCommand(opts[0], nil)
 	default:
-		processCommand(args[0], args[1:])
+		processCommand(opts[0], opts[1:])
 	}
 }
 
@@ -112,99 +113,127 @@ func prepare() {
 }
 
 func processCommand(cmd string, args []string) {
-	var err error
-
 	prepare()
 
 	switch cmd {
 	case CMD_ADD, CMD_ADD_SHORTCUT:
-		err = addCommand(args)
+		addCommand(args)
 	case CMD_DELETE, CMD_DELETE_SHORTCUT:
-		err = deleteCommand(args)
+		deleteCommand(args)
 	case CMD_LIST, CMD_LIST_SHORTCUT:
-		err = listCommand()
+		listCommand()
 	case CMD_INFO, CMD_INFO_SHORTCUT:
-		err = infoCommand(args)
+		infoCommand(args)
 	case CMD_HELP:
 		showUsage()
 	default:
-		terminal.PrintErrorMessage("Unknown command")
-		os.Exit(ERROR_UNSUPPORTED)
-	}
-
-	if err != nil {
-		terminal.PrintErrorMessage(err.Error())
+		terminal.PrintErrorMessage("Error: unknown command %s", cmd)
 		os.Exit(ERROR_UNSUPPORTED)
 	}
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func addCommand(args []string) error {
-	if len(args) != 3 {
-		return fmtc.Errorf("Unable to handle %v arguments", len(args))
+func addCommand(args []string) {
+	if len(args) < 3 {
+		terminal.PrintErrorMessage(
+			"Error: unable to handle %v arguments",
+			len(args),
+		)
+		os.Exit(1)
 	}
 
-	repository := repo.NewRepository(
+	var (
+		src      = args[0]
+		name     = args[1]
+		version  = args[2]
+		provider = options.GetS(ARG_PROVIDER)
+	)
+
+	r := repo.NewRepository(
 		knf.GetS(KNF_STORAGE_PATH),
 		knf.GetS(KNF_STORAGE_URL),
-		"openbox",
+		name,
 	)
 
-	providers := append(make(meta.VMetadataProvidersList, 0),
-		meta.NewMetadataProvider(
-			"virtualbox",
-			"",
-			"",
-			"",
-		),
+	err := r.AddPackage(src, repo.NewPackage(name, version, provider))
+
+	if err != nil {
+		terminal.PrintErrorMessage("Error: %s", err.Error())
+		os.Exit(1)
+	}
+}
+
+func deleteCommand(args []string) {
+	if len(args) < 1 {
+		terminal.PrintErrorMessage("Error: name must be set")
+		os.Exit(1)
+	}
+
+	name := args[0]
+
+	r := repo.NewRepository(
+		knf.GetS(KNF_STORAGE_PATH),
+		knf.GetS(KNF_STORAGE_URL),
+		name,
 	)
 
-	version := meta.NewMetadataVersion("4.0.0", providers)
+	err := r.RemovePackage(repo.NewPackage(name, "", ""))
 
-	fmtc.Printf("Before: %d\n", repository.CountVersions())
-
-	repository.AddVersion(version)
-
-	fmtc.Printf("After: %d\n", repository.CountVersions())
-
-	return nil
+	if err != nil {
+		terminal.PrintErrorMessage("Error: %s", err.Error())
+		os.Exit(1)
+	}
 }
 
-func deleteCommand(args []string) error {
-	if len(args) != 1 {
-		return fmtc.Errorf("Unable to handle %v arguments", len(args))
-	} else {
-		name := args[0]
-		fmtc.Println(name)
+func listCommand() {
+	table.HeaderCapitalize = true
+	t := table.NewTable()
+
+	t.SetHeaders("name", "latest version", "url")
+	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_CENTER, table.ALIGN_LEFT)
+
+	t.Add("openbox", "4.0.0", "http://localhost:8080/metadata")
+
+	t.Render()
+}
+
+func infoCommand(args []string) {
+	if len(args) < 1 {
+		terminal.PrintErrorMessage("Error: name must be set")
+		os.Exit(1)
 	}
 
-	return nil
-}
-
-func listCommand() error {
-	return nil
-}
-
-func infoCommand(args []string) error {
-	if len(args) != 1 {
-		return fmtc.Errorf("Unable to handle %v arguments", len(args))
-	} else {
-		name := args[0]
-		fmtc.Println(name)
-	}
-
-	return nil
+	fmtc.Println(args[0])
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func setUsageCommands(info *usage.Info) {
-	info.AddCommand(CMD_ADD, "Add image to the Vagrant repository", "source", "name", "version")
-	info.AddCommand(CMD_LIST, "Show the list of available images")
-	info.AddCommand(CMD_DELETE, "Delete the image from the repository", "name", "version")
-	info.AddCommand(CMD_INFO, "Display info of the particular repository", "name")
-	info.AddCommand(CMD_HELP, "Display the current help message")
+	info.AddCommand(
+		CMD_ADD,
+		"Add image to the Vagrant repository",
+		"source",
+		"name",
+		"version",
+	)
+	info.AddCommand(
+		CMD_LIST,
+		"Show the list of available images",
+	)
+	info.AddCommand(
+		CMD_DELETE,
+		"Delete the image from the repository", "name", "version",
+	)
+	info.AddCommand(
+		CMD_INFO,
+		"Display info of the particular repository",
+		"name",
+	)
+	info.AddCommand(
+		CMD_HELP,
+		"Display the current help message",
+	)
 }
 
 func setUsageOptions(info *usage.Info) {
