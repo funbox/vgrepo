@@ -1,9 +1,9 @@
 package repo
 
 import (
+	"fmt"
 	"strings"
 
-	"pkg.re/essentialkaos/ek.v9/fmtc"
 	"pkg.re/essentialkaos/ek.v9/fsutil"
 	"pkg.re/essentialkaos/ek.v9/hash"
 	"pkg.re/essentialkaos/ek.v9/path"
@@ -34,7 +34,7 @@ func (r *VRepository) PathRepo(pkg *VPackage) string {
 }
 
 func (r *VRepository) URLRepo(pkg *VPackage) string {
-	return fmtc.Sprintf("%s/%s",
+	return fmt.Sprintf("%s/%s",
 		strings.Trim(r.StorageURL, "/"),
 		pkg.URLBoxFormat(),
 	)
@@ -61,14 +61,14 @@ func (r *VRepository) AddPackage(src string, pkg *VPackage) error {
 	dst := src
 
 	if !fsutil.IsExist(src) {
-		return fmtc.Errorf("File %s does not exist", src)
+		return fmt.Errorf("File %s does not exist", src)
 	}
 
 	var err error
 	//err = r.copyPackage(src, dst)
 	//
 	//if err != nil {
-	//	return fmtc.Errorf(
+	//	return fmt.Errorf(
 	//		"Unable to copy package from %s to %s",
 	//		src,
 	//		dst,
@@ -92,9 +92,9 @@ func (r *VRepository) AddPackage(src string, pkg *VPackage) error {
 	// r.WriteMeta()
 
 	for _, d := range r.Versions {
-		fmtc.Println(d.Version)
+		fmt.Println(d.Version)
 		for _, q := range d.Providers {
-			fmtc.Println(q.Name, q.Checksum, q.ChecksumType, q.URL)
+			fmt.Println(q.Name, q.Checksum, q.ChecksumType, q.URL)
 		}
 	}
 
@@ -107,7 +107,7 @@ func (r *VRepository) ListPackages() *VPackageList {
 
 func (r *VRepository) RemovePackage(pkg *VPackage) error {
 	// err := os.RemoveAll(r.PathRepo(pkg))
-	fmtc.Println(r.PathRepo(pkg))
+	fmt.Println(r.PathRepo(pkg))
 
 	return nil
 }

@@ -1,7 +1,8 @@
 package repo
 
 import (
-	"pkg.re/essentialkaos/ek.v9/fmtc"
+	"fmt"
+
 	"pkg.re/essentialkaos/ek.v9/path"
 )
 
@@ -20,7 +21,7 @@ type VPackageList []*VPackage
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func (b *VPackage) nameBoxFormat() string {
-	return fmtc.Sprintf("%s.box", b.Name)
+	return fmt.Sprintf("%s.box", b.Name)
 }
 
 func (b *VPackage) DirBoxFormat() string {
@@ -32,7 +33,7 @@ func (b *VPackage) PathBoxFormat() string {
 }
 
 func (b *VPackage) URLBoxFormat() string {
-	return fmtc.Sprintf(
+	return fmt.Sprintf(
 		"packages/%s/%s/%s/%s",
 		b.Name,
 		b.Version,

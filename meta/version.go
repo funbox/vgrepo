@@ -1,9 +1,9 @@
 package meta
 
 import (
+	"fmt"
 	"sort"
 
-	"pkg.re/essentialkaos/ek.v9/fmtc"
 	"pkg.re/essentialkaos/ek.v9/sortutil"
 )
 
@@ -94,7 +94,7 @@ func (m *VMetadata) SortVersions() {
 // AddVersion adds version to the metadata list
 func (m *VMetadata) AddVersion(version *VMetadataVersion) error {
 	if m.IsVersionExist(version.Version) {
-		return fmtc.Errorf(
+		return fmt.Errorf(
 			"Cannot add version to metadata: version %s is already exist",
 			version.Version,
 		)

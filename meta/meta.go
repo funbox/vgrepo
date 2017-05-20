@@ -1,9 +1,9 @@
 package meta
 
 import (
+	"fmt"
 	"strings"
 
-	"pkg.re/essentialkaos/ek.v9/fmtc"
 	"pkg.re/essentialkaos/ek.v9/fsutil"
 	"pkg.re/essentialkaos/ek.v9/jsonutil"
 	"pkg.re/essentialkaos/ek.v9/path"
@@ -21,7 +21,7 @@ type VMetadata struct {
 
 // nameMeta returns name of the metadata file with extension
 func (m *VMetadata) nameMeta() string {
-	return fmtc.Sprintf("%s.json", m.Name)
+	return fmt.Sprintf("%s.json", m.Name)
 }
 
 // baseMeta returns name of metadata files
@@ -41,7 +41,7 @@ func (m *VMetadata) PathMeta() string {
 
 // URLMeta returns direct link to metadata file
 func (m *VMetadata) URLMeta() string {
-	return fmtc.Sprintf("%s/%s/%s/%s",
+	return fmt.Sprintf("%s/%s/%s/%s",
 		strings.Trim(m.StorageURL, "/"),
 		m.Name,
 		"metadata",
@@ -79,7 +79,7 @@ func NewMetadata(storagePath string, storageUrl string, repository *VMetadataRep
 // loadFromFile returns new VMetadataRepository struct which was read from the metadata file
 func (m *VMetadata) loadFromFile(metaPath string) (*VMetadataRepository, error) {
 	if !fsutil.IsExist(metaPath) {
-		return nil, fmtc.Errorf("Metadata %s does not exist", metaPath)
+		return nil, fmt.Errorf("Metadata %s does not exist", metaPath)
 	}
 
 	info := &VMetadataRepository{}
