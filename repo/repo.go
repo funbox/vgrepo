@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"pkg.re/essentialkaos/ek.v9/fsutil"
@@ -9,6 +10,7 @@ import (
 	"pkg.re/essentialkaos/ek.v9/path"
 
 	"github.com/gongled/vgrepo/meta"
+	"github.com/gongled/vgrepo/prefs"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -21,12 +23,8 @@ type VRepositoryList []*VRepository
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func (r *VRepository) BaseRepo() string {
-	return r.StoragePath
-}
-
 func (r *VRepository) DirRepo() string {
-	return path.Join(r.BaseRepo(), "packages")
+	return path.Join(r.StoragePath(), "packages")
 }
 
 func (r *VRepository) PathRepo(pkg *VPackage) string {
@@ -35,7 +33,7 @@ func (r *VRepository) PathRepo(pkg *VPackage) string {
 
 func (r *VRepository) URLRepo(pkg *VPackage) string {
 	return fmt.Sprintf("%s/%s",
-		strings.Trim(r.StorageURL, "/"),
+		strings.Trim(r.StorageURL(), "/"),
 		pkg.URLBoxFormat(),
 	)
 }
@@ -51,73 +49,73 @@ func (r *VRepository) CreateRepo() error {
 func (r *VRepository) copyPackage(src string, dst string) error {
 	var err error
 
+	basedir := path.Dir(dst)
+
+	err = os.MkdirAll(basedir, 0755)
+
+	if err != nil {
+		return err
+	}
+
+	err = fsutil.CopyFile(src, dst, 0644)
+
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
 func (r *VRepository) AddPackage(src string, pkg *VPackage) error {
 	r.CreateRepo()
 
-	// dst := r.PathRepo(pkg)
-	dst := src
+	dst := r.PathRepo(pkg)
+	err := r.copyPackage(src, dst)
 
-	if !fsutil.IsExist(src) {
-		return fmt.Errorf("File %s does not exist", src)
+	if err != nil {
+		return err
 	}
-
-	var err error
-	//err = r.copyPackage(src, dst)
-	//
-	//if err != nil {
-	//	return fmt.Errorf(
-	//		"Unable to copy package from %s to %s",
-	//		src,
-	//		dst,
-	//	)
-	//}
 
 	providerList := make(meta.VMetadataProvidersList, 0)
 
-	provider := meta.NewMetadataProvider(
-		pkg.Provider,
-		hash.FileHash(dst),
-		"sha256",
-		r.URLRepo(pkg),
+	providerList = append(providerList,
+		meta.NewMetadataProvider(
+			pkg.Provider,
+			hash.FileHash(dst),
+			"sha256",
+			r.URLRepo(pkg),
+		),
 	)
-
-	providerList = append(providerList, provider)
 
 	version := meta.NewMetadataVersion(pkg.Version, providerList)
 
 	r.AddVersion(version)
-	// r.WriteMeta()
+	r.WriteMeta()
 
-	for _, d := range r.Versions {
-		fmt.Println(d.Version)
-		for _, q := range d.Providers {
-			fmt.Println(q.Name, q.Checksum, q.ChecksumType, q.URL)
-		}
+	return err
+}
+
+func (r *VRepository) RemovePackage(pkg *VPackage) error {
+	err := os.RemoveAll(r.PathRepo(pkg))
+
+	if err != nil {
+		return err
+	}
+
+	r.RemoveVersion(pkg.Version)
+
+	if r.IsEmptyMeta() {
+		r.DeleteMeta()
 	}
 
 	return err
 }
 
-func (r *VRepository) ListPackages() *VPackageList {
-	return nil
-}
-
-func (r *VRepository) RemovePackage(pkg *VPackage) error {
-	// err := os.RemoveAll(r.PathRepo(pkg))
-	fmt.Println(r.PathRepo(pkg))
-
-	return nil
-}
-
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func NewRepository(storagePath string, storageUrl string, name string) *VRepository {
+func NewRepository(settings *prefs.Preferences, name string) *VRepository {
 	m := meta.NewMetadata(
-		storagePath,
-		storageUrl,
+		settings,
 		meta.NewMetadataRepository(
 			name,
 			"",

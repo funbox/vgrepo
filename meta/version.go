@@ -76,11 +76,11 @@ func (m *VMetadata) OldestVersion() string {
 }
 
 // LatestVersion returns the latest version from the list
-func (m *VMetadata) LatestVersion() string {
+func (m *VMetadata) LatestVersion() *VMetadataVersion {
 	if !m.IsEmptyMeta() {
-		return m.Versions[m.CountVersions()-1].Version
+		return m.Versions[m.CountVersions()-1]
 	} else {
-		return ""
+		return nil
 	}
 }
 

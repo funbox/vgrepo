@@ -8,8 +8,6 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-const DEFAULT_PROVIDER = "virtualbox"
-
 type VPackage struct {
 	Name     string
 	Version  string
@@ -45,10 +43,6 @@ func (b *VPackage) URLBoxFormat() string {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func NewPackage(name string, version string, provider string) *VPackage {
-	if provider == "" {
-		provider = DEFAULT_PROVIDER
-	}
-
 	b := &VPackage{
 		Name:     name,
 		Version:  version,

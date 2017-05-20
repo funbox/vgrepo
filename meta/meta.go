@@ -7,14 +7,15 @@ import (
 	"pkg.re/essentialkaos/ek.v9/fsutil"
 	"pkg.re/essentialkaos/ek.v9/jsonutil"
 	"pkg.re/essentialkaos/ek.v9/path"
+	"github.com/gongled/vgrepo/prefs"
+	"os"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 type VMetadata struct {
+	*prefs.Preferences          // settings
 	*VMetadataRepository        // metadata of the repository
-	StorageURL           string // repository URL and port
-	StoragePath          string // repository path to store images and metadata
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -26,12 +27,12 @@ func (m *VMetadata) nameMeta() string {
 
 // baseMeta returns name of metadata files
 func (m *VMetadata) baseMeta() string {
-	return path.Join(m.StoragePath, m.Name)
+	return path.Join(m.StoragePath(), "metadata")
 }
 
 // DirMeta returns directory string to metadata file
 func (m *VMetadata) DirMeta() string {
-	return path.Join(m.baseMeta(), "metadata")
+	return path.Join(m.baseMeta(), m.Name)
 }
 
 // PathMeta returns full path to metadata file
@@ -42,9 +43,9 @@ func (m *VMetadata) PathMeta() string {
 // URLMeta returns direct link to metadata file
 func (m *VMetadata) URLMeta() string {
 	return fmt.Sprintf("%s/%s/%s/%s",
-		strings.Trim(m.StorageURL, "/"),
-		m.Name,
+		strings.Trim(m.StorageURL(), "/"),
 		"metadata",
+		m.Name,
 		m.nameMeta(),
 	)
 }
@@ -62,11 +63,10 @@ func (m *VMetadata) IsEmptyMeta() bool {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 // NewMetadata returns new VMetadata struct
-func NewMetadata(storagePath string, storageUrl string, repository *VMetadataRepository) *VMetadata {
+func NewMetadata(settings *prefs.Preferences, repository *VMetadataRepository) *VMetadata {
 	m := &VMetadata{
-		StoragePath:         storagePath,
-		StorageURL:          storageUrl,
-		VMetadataRepository: repository,
+		settings,
+		repository,
 	}
 
 	m.SortVersions()
@@ -95,7 +95,15 @@ func (m *VMetadata) loadFromFile(metaPath string) (*VMetadataRepository, error) 
 
 // dumpToFile dumps VMetadata struct on the metadata file on the disk
 func (m *VMetadata) dumpToFile(metaPath string) error {
+	var err error
+
 	m.SortVersions()
+
+	err = os.MkdirAll(path.Dir(metaPath), 0755)
+
+	if err != nil {
+		return err
+	}
 
 	return jsonutil.EncodeToFile(metaPath, m.VMetadataRepository)
 }
@@ -105,8 +113,7 @@ func (m *VMetadata) ReadMeta() (*VMetadata, error) {
 	md, err := m.loadFromFile(m.PathMeta())
 
 	return NewMetadata(
-		m.StoragePath,
-		m.StorageURL,
+		m.Preferences,
 		md,
 	), err
 }
@@ -114,6 +121,11 @@ func (m *VMetadata) ReadMeta() (*VMetadata, error) {
 // WriteMeta dumps VMetadata struct on the linked metadata file on the disk
 func (m *VMetadata) WriteMeta() error {
 	return m.dumpToFile(m.PathMeta())
+}
+
+// DeleteMeta deletes file with metadata from the disk
+func (m *VMetadata) DeleteMeta() error {
+	return os.RemoveAll(m.DirMeta())
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

@@ -4,13 +4,15 @@ import (
 	"os"
 
 	"pkg.re/essentialkaos/ek.v9/fmtc"
+	"pkg.re/essentialkaos/ek.v9/fmtutil/table"
 	"pkg.re/essentialkaos/ek.v9/knf"
 	"pkg.re/essentialkaos/ek.v9/options"
-	"pkg.re/essentialkaos/ek.v9/fmtutil/table"
 	"pkg.re/essentialkaos/ek.v9/terminal"
 	"pkg.re/essentialkaos/ek.v9/usage"
 
 	"github.com/gongled/vgrepo/repo"
+	"github.com/gongled/vgrepo/storage"
+	"github.com/gongled/vgrepo/prefs"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -40,7 +42,6 @@ const (
 )
 
 const (
-	ARG_PROVIDER = "p:provider"
 	ARG_NO_COLOR = "nc:no-color"
 	ARG_HELP     = "h:help"
 	ARG_VER      = "v:version"
@@ -60,6 +61,8 @@ var optionsMap = options.Map{
 	ARG_HELP:     {Type: options.BOOL, Alias: "u:usage"},
 	ARG_VER:      {Type: options.BOOL, Alias: "ver"},
 }
+
+var preferences *prefs.Preferences
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
@@ -106,6 +109,11 @@ func Init() {
 func prepare() {
 	err := knf.Global(CONFIG_FILE)
 
+	preferences = prefs.NewPreferences(
+		knf.GetS(KNF_STORAGE_PATH),
+		knf.GetS(KNF_STORAGE_URL),
+	)
+
 	if err != nil {
 		terminal.PrintErrorMessage(err.Error())
 		os.Exit(ERROR_INVALID_SETTINGS)
@@ -135,7 +143,7 @@ func processCommand(cmd string, args []string) {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func addCommand(args []string) {
-	if len(args) < 3 {
+	if len(args) < 4 {
 		terminal.PrintErrorMessage(
 			"Error: unable to handle %v arguments",
 			len(args),
@@ -147,14 +155,10 @@ func addCommand(args []string) {
 		src      = args[0]
 		name     = args[1]
 		version  = args[2]
-		provider = options.GetS(ARG_PROVIDER)
+		provider = args[3]
 	)
 
-	r := repo.NewRepository(
-		knf.GetS(KNF_STORAGE_PATH),
-		knf.GetS(KNF_STORAGE_URL),
-		name,
-	)
+	r := repo.NewRepository(preferences, name)
 
 	err := r.AddPackage(src, repo.NewPackage(name, version, provider))
 
@@ -165,20 +169,20 @@ func addCommand(args []string) {
 }
 
 func deleteCommand(args []string) {
-	if len(args) < 1 {
+	if len(args) < 2 {
 		terminal.PrintErrorMessage("Error: name must be set")
 		os.Exit(1)
 	}
 
-	name := args[0]
-
-	r := repo.NewRepository(
-		knf.GetS(KNF_STORAGE_PATH),
-		knf.GetS(KNF_STORAGE_URL),
-		name,
+	var (
+		name     = args[0]
+		version  = args[1]
+		provider = "virtualbox" // TODO: add support of partial remove by provider
 	)
 
-	err := r.RemovePackage(repo.NewPackage(name, "", ""))
+	r := repo.NewRepository(preferences, name)
+
+	err := r.RemovePackage(repo.NewPackage(name, version, provider))
 
 	if err != nil {
 		terminal.PrintErrorMessage("Error: %s", err.Error())
@@ -187,15 +191,9 @@ func deleteCommand(args []string) {
 }
 
 func listCommand() {
-	table.HeaderCapitalize = true
-	t := table.NewTable()
+	s := storage.NewStorage(preferences)
 
-	t.SetHeaders("name", "latest version", "url")
-	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_CENTER, table.ALIGN_LEFT)
-
-	t.Add("openbox", "4.0.0", "http://localhost:8080/metadata")
-
-	t.Render()
+	listTableRender(s.Repositories())
 }
 
 func infoCommand(args []string) {
@@ -204,7 +202,51 @@ func infoCommand(args []string) {
 		os.Exit(1)
 	}
 
-	fmtc.Println(args[0])
+	name := args[0]
+
+	infoTableRender(repo.NewRepository(preferences, name))
+}
+
+// ////////////////////////////////////////////////////////////////////////////////// //
+
+func infoTableRender(r *repo.VRepository) {
+	t := table.NewTable()
+	table.HeaderCapitalize = true
+
+	t.SetHeaders("Name", "Version", "Provider", "Checksum")
+	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_CENTER, table.ALIGN_LEFT, table.ALIGN_LEFT)
+
+	for _, v := range r.Versions {
+		for _, p := range v.Providers {
+			t.Add(r.Name, v.Version, p.Name, p.Checksum)
+		}
+	}
+
+	if t.HasData() {
+		t.Render()
+	} else {
+		terminal.PrintWarnMessage("Repository does not exist")
+	}
+}
+
+func listTableRender(repos repo.VRepositoryList) {
+	t := table.NewTable()
+	table.HeaderCapitalize = true
+
+	t.SetHeaders("Name", "Latest version", "URL")
+	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_LEFT, table.ALIGN_LEFT)
+
+	for _, r := range repos {
+		if r.HasMeta() {
+			t.Add(r.Name, r.LatestVersion().Version, r.URLMeta())
+		}
+	}
+
+	if t.HasData() {
+		t.Render()
+	} else {
+		terminal.PrintWarnMessage("No repositories yet")
+	}
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -216,6 +258,7 @@ func setUsageCommands(info *usage.Info) {
 		"source",
 		"name",
 		"version",
+		"provider",
 	)
 	info.AddCommand(
 		CMD_LIST,
@@ -223,7 +266,10 @@ func setUsageCommands(info *usage.Info) {
 	)
 	info.AddCommand(
 		CMD_DELETE,
-		"Delete the image from the repository", "name", "version",
+		"Delete the image from the repository",
+		"name",
+		"version",
+		"provider",
 	)
 	info.AddCommand(
 		CMD_INFO,
@@ -244,7 +290,7 @@ func setUsageOptions(info *usage.Info) {
 
 func setUsageExamples(info *usage.Info) {
 	info.AddExample(
-		"add $HOME/powerbox-1.0.0.box powerbox 1.1.0",
+		"add $HOME/powerbox-1.0.0.box powerbox 1.1.0 virtualbox",
 		"Add image to the Vagrant repository",
 	)
 	info.AddExample(
