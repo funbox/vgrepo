@@ -50,7 +50,7 @@ Group:           Applications/System
 License:         MIT
 URL:             https://github.com/gongled/vgrepo
 
-Source0:         %{name}-%{version}.tar.bz2
+Source0:         https://github.com/gongled/%{name}/releases/download/v%{version}/%{name}-%{version}.tar.gz2
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -69,9 +69,7 @@ Simple CLI utility for managing Vagrant repositories.
 %setup -q
 
 %build
-mkdir -p src
-mv github.com src
-mv pkg.re src
+mkdir src && mv {github.com,pkg.re} src
 
 export GOPATH=$(pwd)
 pushd src/github.com/gongled/%{name}/
