@@ -31,11 +31,9 @@ go get -u github.com/gongled/vgrepo
 
 ## Getting started
 
-1. Specify storage settings in the `/etc/vgrepo.conf` configuration file. 
-
-Parameter `path` is a directory that contains repositories with their metadata: name, versions and 
-providers of VMs. Parameter `url` is used to discover your images and provides a permanent link 
-to metadata.
+1. Specify storage settings in the `/etc/vgrepo.conf` configuration file. Parameter `path` is a 
+directory that contains repositories with their metadata: name, versions and providers of VMs. 
+Parameter `url` is used to discover your images and provides a permanent link to metadata.
 
     ```
     [storage]
@@ -53,7 +51,7 @@ to metadata.
 
     ```
     vgrepo add /path/to/image.box powerbox 1.0.0 virtualbox
-    ``` 
+    ```
     
 4. Configure NGINX to serve static files from `/srv/storage` directory.
 
@@ -81,7 +79,7 @@ the `config.vm.box_url` to force Vagrant checking updates every time you run com
 ## Advanced
 
 Imagine you have an image with the name `powerbox`. The standard path for metadata will be 
-`http://vagrant.example.tld/metadata/powerbox/powerbox.json`, however it looks awful and not memorable. 
+`http://vagrant.example.tld/metadata/powerbox/powerbox.json`, however it looks awful and unmemorable. 
 You can use well-looking URL instead of direct link to JSON metadata file with the following NGINX 
 configuration of the virtual host:  
 
