@@ -1,7 +1,6 @@
-package meta
+package metadata
 
 import (
-	"fmt"
 	"sort"
 
 	"pkg.re/essentialkaos/ek.v9/sortutil"
@@ -36,29 +35,30 @@ func (s VMetadataVersionsList) Less(i, j int) bool {
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 // equalVersions returns true if versions are equal
-func equalVersions(first string, second string) bool {
-	return first == second
+func equalVersions(first *VMetadataVersion, second *VMetadataVersion) bool {
+	return first.Version == second.Version
 }
 
 // notEqualVersions returns true if versions are not equal
-func notEqualVersions(first string, second string) bool {
+func notEqualVersions(first *VMetadataVersion, second *VMetadataVersion) bool {
 	return !equalVersions(first, second)
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 // AnyVersions returns true if version if present on the list
-func (m *VMetadata) AnyVersions(version string, f func(string, string) bool) bool {
+func (m *VMetadata) AnyVersions(version *VMetadataVersion, f func(*VMetadataVersion, *VMetadataVersion) bool) bool {
 	for _, v := range m.Versions {
-		if f(v.Version, version) {
+		if f(v, version) {
 			return true
 		}
 	}
 	return false
 }
 
-// IsVersionExist returns true if version is already exist in the metadata
-func (m *VMetadata) IsVersionExist(version string) bool {
+// isVersionExist returns true if version is already exist in the metadata
+// TODO: improve comparisons: version -> checksum
+func (m *VMetadata) isVersionExist(version *VMetadataVersion) bool {
 	return m.AnyVersions(version, equalVersions)
 }
 
@@ -93,25 +93,26 @@ func (m *VMetadata) SortVersions() {
 
 // AddVersion adds version to the metadata list
 func (m *VMetadata) AddVersion(version *VMetadataVersion) error {
-	if m.IsVersionExist(version.Version) {
-		return fmt.Errorf(
-			"Cannot add version to metadata: version %s is already exist",
-			version.Version,
-		)
+	if m.isVersionExist(version) {
+		versionMatch := m.FindVersion(version.Version)
+		for _, p := range version.Providers {
+			return versionMatch.AddProvider(p)
+		}
+	} else {
+		m.Versions = append(m.Versions, version)
 	}
 
-	m.Versions = append(m.Versions, version)
 	m.SortVersions()
 
 	return nil
 }
 
 // FilterVersion filters list of versions in the metadata by given function
-func (m *VMetadata) FilterVersion(version string, f func(string, string) bool) {
+func (m *VMetadata) FilterVersion(version *VMetadataVersion, f func(*VMetadataVersion, *VMetadataVersion) bool) {
 	versionsList := make(VMetadataVersionsList, 0)
 
 	for _, v := range m.Versions {
-		if f(v.Version, version) {
+		if f(v, version) {
 			versionsList = append(versionsList, v)
 		}
 	}
@@ -119,8 +120,18 @@ func (m *VMetadata) FilterVersion(version string, f func(string, string) bool) {
 	m.Versions = versionsList
 }
 
+// FindVersion returns version by string id
+func (m *VMetadata) FindVersion(version string) *VMetadataVersion {
+	for _, v := range m.Versions {
+		if v.Version == version {
+			return v
+		}
+	}
+	return nil
+}
+
 // RemoveVersion removes version from the list or do nothing
-func (m *VMetadata) RemoveVersion(version string) {
+func (m *VMetadata) RemoveVersion(version *VMetadataVersion) {
 	m.FilterVersion(version, notEqualVersions)
 }
 

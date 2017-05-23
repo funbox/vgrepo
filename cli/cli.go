@@ -10,9 +10,9 @@ import (
 	"pkg.re/essentialkaos/ek.v9/terminal"
 	"pkg.re/essentialkaos/ek.v9/usage"
 
-	"github.com/gongled/vgrepo/repo"
-	"github.com/gongled/vgrepo/storage"
 	"github.com/gongled/vgrepo/prefs"
+	"github.com/gongled/vgrepo/repository"
+	"github.com/gongled/vgrepo/storage"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -158,35 +158,43 @@ func addCommand(args []string) {
 		provider = args[3]
 	)
 
-	r := repo.NewRepository(preferences, name)
+	r := repository.NewRepository(preferences, name)
 
-	err := r.AddPackage(src, repo.NewPackage(name, version, provider))
+	terminal.PrintActionMessage("Importing package")
+	err := r.AddPackage(src, repository.NewPackage(name, version, provider))
 
 	if err != nil {
+		terminal.PrintActionStatus(1)
 		terminal.PrintErrorMessage("Error: %s", err.Error())
 		os.Exit(1)
+	} else {
+		terminal.PrintActionStatus(0)
 	}
 }
 
 func deleteCommand(args []string) {
-	if len(args) < 2 {
-		terminal.PrintErrorMessage("Error: name must be set")
+	if len(args) < 3 {
+		terminal.PrintErrorMessage("Error: name, version and provider must be set")
 		os.Exit(1)
 	}
 
 	var (
 		name     = args[0]
 		version  = args[1]
-		provider = "virtualbox" // TODO: add support of partial remove by provider
+		provider = args[2]
 	)
 
-	r := repo.NewRepository(preferences, name)
+	r := repository.NewRepository(preferences, name)
 
-	err := r.RemovePackage(repo.NewPackage(name, version, provider))
+	terminal.PrintActionMessage("Removing package")
+	err := r.RemovePackage(repository.NewPackage(name, version, provider))
 
 	if err != nil {
+		terminal.PrintActionStatus(1)
 		terminal.PrintErrorMessage("Error: %s", err.Error())
 		os.Exit(1)
+	} else {
+		terminal.PrintActionStatus(0)
 	}
 }
 
@@ -204,21 +212,20 @@ func infoCommand(args []string) {
 
 	name := args[0]
 
-	infoTableRender(repo.NewRepository(preferences, name))
+	infoTableRender(repository.NewRepository(preferences, name))
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func infoTableRender(r *repo.VRepository) {
-	t := table.NewTable()
+func infoTableRender(r *repository.VRepository) {
+	t := table.NewTable("Name", "Provider", "Version", "Checksum")
 	table.HeaderCapitalize = true
 
-	t.SetHeaders("Name", "Version", "Provider", "Checksum")
-	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_CENTER, table.ALIGN_LEFT, table.ALIGN_LEFT)
+	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_LEFT, table.ALIGN_RIGHT, table.ALIGN_LEFT)
 
 	for _, v := range r.Versions {
 		for _, p := range v.Providers {
-			t.Add(r.Name, v.Version, p.Name, p.Checksum)
+			t.Add(r.Name, p.Name, v.Version, p.Checksum)
 		}
 	}
 
@@ -229,16 +236,14 @@ func infoTableRender(r *repo.VRepository) {
 	}
 }
 
-func listTableRender(repos repo.VRepositoryList) {
-	t := table.NewTable()
+func listTableRender(repos repository.VRepositoryList) {
+	t := table.NewTable("Name", "Latest", "Metadata URL")
 	table.HeaderCapitalize = true
 
-	t.SetHeaders("Name", "Latest version", "URL")
-	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_LEFT, table.ALIGN_LEFT)
-
+	t.SetAlignments(table.ALIGN_LEFT, table.ALIGN_RIGHT, table.ALIGN_LEFT)
 	for _, r := range repos {
 		if r.HasMeta() {
-			t.Add(r.Name, r.LatestVersion().Version, r.URLMeta())
+			t.Add(r.Name, r.LatestVersion().Version, r.MetaURL())
 		}
 	}
 
@@ -295,15 +300,15 @@ func setUsageExamples(info *usage.Info) {
 	)
 	info.AddExample(
 		"list",
-		"Show the list of available images",
+		"Show the list of available repositories",
 	)
 	info.AddExample(
-		"remove powerbox 1.1.0",
+		"delete powerbox 1.1.0",
 		"Remove the image from the repository",
 	)
 	info.AddExample(
 		"info powerbox",
-		"Remove the image from the repository",
+		"Show detailed info about the repository",
 	)
 }
 

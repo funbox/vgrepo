@@ -2,17 +2,16 @@ package storage
 
 import (
 	"pkg.re/essentialkaos/ek.v9/fsutil"
-	"pkg.re/essentialkaos/ek.v9/path"
 
 	"github.com/gongled/vgrepo/prefs"
-	"github.com/gongled/vgrepo/repo"
+	"github.com/gongled/vgrepo/repository"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 type VStorage struct {
 	*prefs.Preferences
-	repositories repo.VRepositoryList
+	repositories repository.VRepositoryList
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -23,20 +22,17 @@ func listDirs(dir string) []string {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-func packagesPath(settings *prefs.Preferences) string {
-	return path.Join(settings.StoragePath(), "packages")
-}
-
-func (s *VStorage) Repositories() repo.VRepositoryList {
+// Repositories provides a list of repositories
+func (s *VStorage) Repositories() repository.VRepositoryList {
 	return s.repositories
 }
 
 func NewStorage(settings *prefs.Preferences) *VStorage {
-	repositories := make(repo.VRepositoryList, 0)
+	repositories := make(repository.VRepositoryList, 0)
 
-	for _, r := range listDirs(packagesPath(settings)) {
+	for _, r := range listDirs(settings.PackagesPath()) {
 		repositories = append(
-			repositories, repo.NewRepository(
+			repositories, repository.NewRepository(
 				settings,
 				r,
 			),
