@@ -50,7 +50,8 @@ Group:           Applications/System
 License:         MIT
 URL:             https://github.com/gongled/vgrepo
 
-Source0:         https://github.com/gongled/%{name}/releases/download/v%{version}/%{name}-%{version}.tar.gz2
+Source0:         %{name}-%{version}.tar.bz2
+Source1:         %{name}.knf
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -85,7 +86,7 @@ install -dm 755 %{buildroot}%{_sysconfdir}
 install -pm 755 src/github.com/gongled/%{name}/%{name} \
                 %{buildroot}%{_bindir}/
 
-install -pm 644 src/github.com/gongled/%{name}/common/%{name}.knf \
+install -pm 644 %{SOURCE1} \
                 %{buildroot}%{_sysconfdir}/
 
 %clean
