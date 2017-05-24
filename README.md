@@ -29,34 +29,75 @@ If you want update `vgrepo` to latest stable release, do:
 go get -u github.com/gongled/vgrepo
 ```
 
-## Configuration
+## Getting started
 
-Specify storage settings in the `/etc/vgrepo.conf` configuration file. `path` is a directory that contains 
-repositories with their metadata: name, versions and providers of VMs. `url` uses to discover your images 
-and provides a permanent link to metadata.
+1. Specify storage settings in the `/etc/vgrepo.conf` configuration file. Parameter `path` is a 
+directory that contains repositories with their metadata: name, versions and providers of VMs. 
+Parameter `url` is used to discover your images and provides a permanent link to metadata.
 
-```
-[storage]
+    ```
+    [storage]
+    
+      # Repository URL and port
+      url: http://vagrant.example.tld
+    
+      # Repository path to store images and metadata
+      path: /srv/storage
+    ```
+    
+2. Create directory for the repository path `/srv/storage` and make sure that it is writable.
 
-  url: http://localhost:8080
+3. Add the image to the repository:
 
-  path: /srv/vagrant
+    ```
+    vgrepo add /path/to/image.box powerbox 1.0.0 virtualbox
+    ```
+    
+4. Configure NGINX to serve static files from `/srv/storage` directory.
 
-```
+    ```
+    server {
+        listen 80;
+        
+        server_name vagrant.example.tld;
+        
+        access_log off;
+        error_log off;
+        
+        root /srv/storage;
+        
+        location / {
+            autoindex on;
+            expires -1;
+        }
+    }
+    ```
+ 
+Done. After adding changes you can specify URL `http://vagrant.example.tld/metadata/powerbox/powerbox.json` in 
+the `config.vm.box_url` to force Vagrant checking updates every time you run command `vagrant up`. 
 
-Run NGINX with the following configuration of the virtual host. 
-It allows you distribute your images for more than one machine over HTTP or HTTPS. 
+## Advanced
+
+Imagine you have an image with the name `powerbox`. The standard path for metadata will be 
+`http://vagrant.example.tld/metadata/powerbox/powerbox.json`, however it looks awful and unmemorable. 
+You can use well-looking URL instead of direct link to JSON metadata file with the following NGINX 
+configuration of the virtual host:  
 
 ```
 server {
     listen 8080;
-    server_name localhost;
+    
+    server_name vagrant.example.tld;
 
-    root /srv/vagrant;
+    root /srv/storage;
 
-    location ~ ^/([^\/]+)/$ {
-        index /metadata/$1.json;
-        try_files /$1/metadata/$1.json =404;
+    location ~ ^/r/([^\/]+)$ {
+        return 301 $uri/;
+    }
+
+    location ~ ^/r/([^\/]+)/$ {
+        index /metadata/$1/$1.json;
+        try_files /metadata/$1/$1.json =404;
     }
 
     location ~ \.json$ {
@@ -74,24 +115,21 @@ server {
 }
 ```
 
-Done.
-
-For example, you have an image with the name `powerbox`. Now after adding you can specify URL 
-`http://localhost:8080/powerbox` in the `config.vm.box_url` to force Vagrant checking 
-updates every time you run command `vagrant up`. Sounds great!
+Now you are able to distribute your images for more than one machine over HTTP or HTTPS 
+with a short and nice URLs with a format `http://vagrant.example.tld/r/powerbox`. 
 
 ## Usage
 
 ```
-Usage: vgrepo {command} {options}
+Usage: vgrepo {options} {command}
 
 Commands
 
-  add       Add image to the Vagrant repository
-  list      Show the list of available images
-  delete    Delete the image from the repository
-  info      Display info of the particular repository
-  help      Display the current help message
+  add source name version provider    Add image to the Vagrant repository
+  list                                Show the list of available images
+  delete name version provider        Delete the image from the repository
+  info name                           Display info of the particular repository
+  help                                Display the current help message
 
 Options
 
@@ -101,17 +139,17 @@ Options
 
 Examples
 
-  vgrepo add $HOME/powerbox-1.0.0.box powerbox 1.1.0
+  vgrepo add $HOME/powerbox-1.0.0.box powerbox 1.1.0 virtualbox
   Add image to the Vagrant repository
 
   vgrepo list
-  Show the list of available images
+  Show the list of available repositories
 
-  vgrepo remove powerbox 1.1.0
+  vgrepo delete powerbox 1.1.0
   Remove the image from the repository
 
   vgrepo info powerbox
-  Remove the image from the repository
+  Show detailed info about the repository
 ```
 
 ## License

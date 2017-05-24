@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'yaml'
+
+################################################################################
+
+API_VERSION=2
+NODES = YAML.load_file('vagrant.yml')["vms"]
+
+################################################################################
+
+Vagrant.configure(API_VERSION) do |config|
+  NODES.each do |vm_host, vm_conf|
+
+    config.vm.define vm_host, autostart: true do |conf|
+      conf.ssh.forward_agent = true
+      conf.ssh.insert_key = false
+
+      conf.vm.box = vm_conf["box"]
+      if !(vm_conf["box_url"].nil?)
+        conf.vm.box_url = vm_conf["box_url"]
+      end
+
+      conf.vm.hostname = "#{vm_host}"
+
+      if !(vm_conf["ip"].nil?)
+        conf.vm.network "private_network", ip: vm_conf["ip"]
+      end
+
+      conf.vm.provider "virtualbox" do |vbox|
+        vbox.memory = vm_conf["memory"] || 512
+        vbox.cpus   = vm_conf["cpus"] || 1
+      end
+
+    end
+  end
+end
+
+################################################################################

@@ -1,2 +1,4 @@
 .idea
+common/SOURCES/*.tar.bz2
+common/*.rpm
 tests/repo/*

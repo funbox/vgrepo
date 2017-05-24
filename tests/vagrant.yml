@@ -1,0 +1,7 @@
+---
+
+vms:
+  vm-default:
+    box: default
+    box_url: "http://localhost:8080/default"
+    ip: 10.0.8.10

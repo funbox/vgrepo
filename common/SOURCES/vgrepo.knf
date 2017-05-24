@@ -1,0 +1,7 @@
+[storage]
+
+  # Repository URL and port
+  url: http://localhost:8080
+
+  # Repository path to store images and metadata
+  path: tests/repo
