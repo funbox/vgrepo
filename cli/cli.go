@@ -132,10 +132,10 @@ func processCommand(cmd string, args []string) {
 		deleteCommand(args)
 	case CMD_LIST, CMD_LIST_SHORTCUT:
 		listCommand()
-	case CMD_RENDER, CMD_RENDER_SHORTCUT:
-		renderCommand(args)
 	case CMD_INFO, CMD_INFO_SHORTCUT:
 		infoCommand(args)
+	case CMD_RENDER, CMD_RENDER_SHORTCUT:
+		renderCommand(args)
 	case CMD_HELP:
 		showUsage()
 	default:
@@ -202,6 +202,24 @@ func deleteCommand(args []string) {
 	}
 }
 
+func listCommand() {
+	s := storage.NewStorage(preferences)
+
+	listTableRender(s.Repositories())
+}
+
+func infoCommand(args []string) {
+	if len(args) < 1 {
+		terminal.PrintErrorMessage("Error: name must be set")
+		os.Exit(1)
+	}
+
+	name := args[0]
+
+	infoTableRender(repository.NewRepository(preferences, name))
+}
+
+
 func renderCommand(args []string) {
 	if len(args) < 1 {
 		terminal.PrintErrorMessage("Error: template must be set")
@@ -219,23 +237,6 @@ func renderCommand(args []string) {
 
 	terminal.PrintActionMessage("Rendering template")
 	terminal.PrintActionStatus(0)
-}
-
-func listCommand() {
-	s := storage.NewStorage(preferences)
-
-	listTableRender(s.Repositories())
-}
-
-func infoCommand(args []string) {
-	if len(args) < 1 {
-		terminal.PrintErrorMessage("Error: name must be set")
-		os.Exit(1)
-	}
-
-	name := args[0]
-
-	infoTableRender(repository.NewRepository(preferences, name))
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -300,15 +301,15 @@ func setUsageCommands(info *usage.Info) {
 		"provider",
 	)
 	info.AddCommand(
+		CMD_INFO,
+		"Display info of the particular repository",
+		"name",
+	)
+	info.AddCommand(
 		CMD_RENDER,
 		"Create index by given template file",
 		"template",
 		"?output",
-	)
-	info.AddCommand(
-		CMD_INFO,
-		"Display info of the particular repository",
-		"name",
 	)
 	info.AddCommand(
 		CMD_HELP,
@@ -336,12 +337,12 @@ func setUsageExamples(info *usage.Info) {
 		"Remove the image from the repository",
 	)
 	info.AddExample(
-		"render default.tpl $HOME/index.html",
-		"Create index file by given template with output $HOME/index.html",
-	)
-	info.AddExample(
 		"info powerbox",
 		"Show detailed info about the repository",
+	)
+	info.AddExample(
+		"render default.tpl $HOME/index.html",
+		"Create index file by given template with output $HOME/index.html",
 	)
 }
 
