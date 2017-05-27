@@ -28,12 +28,14 @@ const (
 	CMD_DELETE = "delete"
 	CMD_LIST   = "list"
 	CMD_INFO   = "info"
+	CMD_RENDER = "render"
 	CMD_HELP   = "help"
 
 	CMD_ADD_SHORTCUT    = "a"
 	CMD_DELETE_SHORTCUT = "d"
 	CMD_LIST_SHORTCUT   = "l"
 	CMD_INFO_SHORTCUT   = "i"
+	CMD_RENDER_SHORTCUT = "r"
 )
 
 const (
@@ -130,6 +132,8 @@ func processCommand(cmd string, args []string) {
 		deleteCommand(args)
 	case CMD_LIST, CMD_LIST_SHORTCUT:
 		listCommand()
+	case CMD_RENDER, CMD_RENDER_SHORTCUT:
+		renderCommand(args)
 	case CMD_INFO, CMD_INFO_SHORTCUT:
 		infoCommand(args)
 	case CMD_HELP:
@@ -196,6 +200,25 @@ func deleteCommand(args []string) {
 	} else {
 		terminal.PrintActionStatus(0)
 	}
+}
+
+func renderCommand(args []string) {
+	if len(args) < 1 {
+		terminal.PrintErrorMessage("Error: template must be set")
+		os.Exit(1)
+	}
+
+	template := args[0]
+	output := "index.html"
+
+	if len(args) == 2 {
+		output = args[1]
+	}
+
+	fmtc.Println("Input parameters:", template, output)
+
+	terminal.PrintActionMessage("Rendering template")
+	terminal.PrintActionStatus(0)
 }
 
 func listCommand() {
@@ -277,6 +300,12 @@ func setUsageCommands(info *usage.Info) {
 		"provider",
 	)
 	info.AddCommand(
+		CMD_RENDER,
+		"Create index by given template file",
+		"template",
+		"?output",
+	)
+	info.AddCommand(
 		CMD_INFO,
 		"Display info of the particular repository",
 		"name",
@@ -305,6 +334,10 @@ func setUsageExamples(info *usage.Info) {
 	info.AddExample(
 		"delete powerbox 1.1.0",
 		"Remove the image from the repository",
+	)
+	info.AddExample(
+		"render default.tpl $HOME/index.html",
+		"Create index file by given template with output $HOME/index.html",
 	)
 	info.AddExample(
 		"info powerbox",
