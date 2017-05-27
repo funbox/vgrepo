@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Source index</title>
+    <title>Storage index</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://unpkg.com/basscss@8.0.2/css/basscss.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700&amp;subset=cyrillic,cyrillic-ext,latin-ext" rel="stylesheet">
@@ -22,7 +22,7 @@
 <body class="p3">
 <main class="max-width-3" role="main">
 <header class="mb4">
-<h1 class="mb0"><a href="/" class="text-decoration-none">Storage Index</a></h1>
+<h1 class="mb0"><a href="/" class="text-decoration-none">Storage index</a></h1>
 </header>
 
 <section class="mb4">

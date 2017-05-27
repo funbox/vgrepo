@@ -44,7 +44,7 @@
 
 Summary:         Utility for managing Vagrant repositories
 Name:            vgrepo
-Version:         1.0.0
+Version:         1.1.0
 Release:         0%{?dist}
 Group:           Applications/System
 License:         MIT
@@ -107,7 +107,7 @@ rm -rf %{buildroot}
 ###############################################################################
 
 %changelog
-* Sun May 27 2017 Gleb Goncharov <gongled@gongled.ru> - 1.1.0-0
+* Sat May 27 2017 Gleb Goncharov <gongled@gongled.ru> - 1.1.0-0
 - Added index generator by given template file
 
 * Sun May 21 2017 Gleb Goncharov <gongled@gongled.ru> - 1.0.0-0
