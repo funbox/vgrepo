@@ -90,7 +90,7 @@ install -pm 755 src/github.com/gongled/%{name}/%{name} \
 install -pm 755 src/github.com/gongled/%{name}/templates/default.tpl \
                 %{buildroot}%{_sysconfdir}/%{name}/templates/
 
-install -pm 644 src/github.com/gongled/%{name}/%{name}.knf \
+install -pm 644 src/github.com/gongled/%{name}/common/%{name}.knf \
                 %{buildroot}%{_sysconfdir}/%{name}/
 
 %clean

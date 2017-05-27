@@ -55,7 +55,7 @@ const (
 	ERROR_INVALID_SETTINGS = 2
 )
 
-const CONFIG_FILE = "/etc/vgrepo.knf"
+const CONFIG_FILE = "/etc/vgrepo/vgrepo.knf"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
