@@ -13,6 +13,7 @@ import (
 	"github.com/gongled/vgrepo/prefs"
 	"github.com/gongled/vgrepo/repository"
 	"github.com/gongled/vgrepo/storage"
+	"github.com/gongled/vgrepo/index"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -233,9 +234,15 @@ func renderCommand(args []string) {
 		output = args[1]
 	}
 
-	fmtc.Println("Input parameters:", template, output)
-
 	terminal.PrintActionMessage("Rendering template")
+	err := index.ExportIndex(storage.NewStorage(preferences), template, output)
+
+	if err != nil {
+		terminal.PrintActionStatus(1)
+		terminal.PrintErrorMessage("Error: unable to render template")
+		os.Exit(1)
+	}
+
 	terminal.PrintActionStatus(0)
 }
 

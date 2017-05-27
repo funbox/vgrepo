@@ -51,7 +51,6 @@ License:         MIT
 URL:             https://github.com/gongled/vgrepo
 
 Source0:         %{name}-%{version}.tar.bz2
-Source1:         %{name}.knf
 
 BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -82,12 +81,17 @@ rm -rf %{buildroot}
 
 install -dm 755 %{buildroot}%{_bindir}
 install -dm 755 %{buildroot}%{_sysconfdir}
+install -dm 755 %{buildroot}%{_sysconfdir}/%{name}
+install -dm 755 %{buildroot}%{_sysconfdir}/%{name}/templates
 
 install -pm 755 src/github.com/gongled/%{name}/%{name} \
                 %{buildroot}%{_bindir}/
 
-install -pm 644 %{SOURCE1} \
-                %{buildroot}%{_sysconfdir}/
+install -pm 755 src/github.com/gongled/%{name}/templates/default.tpl \
+                %{buildroot}%{_sysconfdir}/%{name}/templates/
+
+install -pm 644 src/github.com/gongled/%{name}/%{name}.knf \
+                %{buildroot}%{_sysconfdir}/%{name}/
 
 %clean
 rm -rf %{buildroot}
@@ -96,12 +100,16 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/%{name}.knf
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.knf
+%config(noreplace) %{_sysconfdir}/%{name}/templates/default.tpl
 %{_bindir}/%{name}
 
 ###############################################################################
 
 %changelog
+* Sun May 27 2017 Gleb Goncharov <gongled@gongled.ru> - 1.1.0-0
+- Added index generator by given template file
+
 * Sun May 21 2017 Gleb Goncharov <gongled@gongled.ru> - 1.0.0-0
 - Initial build
 
