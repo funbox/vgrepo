@@ -348,8 +348,8 @@ func setUsageExamples(info *usage.Info) {
 		"Show detailed info about the repository",
 	)
 	info.AddExample(
-		"render default.tpl $HOME/index.html",
-		"Create index file by given template with output $HOME/index.html",
+		"render /etc/vgrepo/templates/default.tpl index.html",
+		"Create index file by given template with output index.html",
 	)
 }
 
