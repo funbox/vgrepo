@@ -30,7 +30,7 @@ type VMetadata struct {
 
 // metaName returns name of the metadata file with extension
 func (m *VMetadata) metaName() string {
-	return fmt.Sprintf("%s%s", m.Name, MD_EXT_TYPE)
+	return m.Name + MD_EXT_TYPE
 }
 
 // MetaDir returns directory string to metadata file
