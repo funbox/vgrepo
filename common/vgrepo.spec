@@ -100,7 +100,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/%{name}/%{name}.knf
+%{_sysconfdir}/%{name}/%{name}.knf
 %config(noreplace) %{_sysconfdir}/%{name}/templates/default.tpl
 %{_bindir}/%{name}
 
