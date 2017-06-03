@@ -26,6 +26,12 @@ func ExportIndex(index *storage.VStorage, templateFile string, outputFile string
 		}
 	}
 
+	tpl, err := ioutil.ReadFile(templateFile)
+
+	if err != nil {
+		return err
+	}
+
 	fd, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
@@ -33,12 +39,6 @@ func ExportIndex(index *storage.VStorage, templateFile string, outputFile string
 	}
 
 	defer fd.Close()
-
-	tpl, err := ioutil.ReadFile(templateFile)
-
-	if err != nil {
-		return err
-	}
 
 	t := template.New("template")
 	t, err = t.Parse(string(tpl[:]))
