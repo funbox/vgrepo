@@ -13,6 +13,7 @@ import (
 	"github.com/gongled/vgrepo/prefs"
 	"github.com/gongled/vgrepo/repository"
 	"github.com/gongled/vgrepo/storage"
+	"github.com/gongled/vgrepo/index"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -28,12 +29,14 @@ const (
 	CMD_DELETE = "delete"
 	CMD_LIST   = "list"
 	CMD_INFO   = "info"
+	CMD_RENDER = "render"
 	CMD_HELP   = "help"
 
 	CMD_ADD_SHORTCUT    = "a"
 	CMD_DELETE_SHORTCUT = "d"
 	CMD_LIST_SHORTCUT   = "l"
 	CMD_INFO_SHORTCUT   = "i"
+	CMD_RENDER_SHORTCUT = "r"
 )
 
 const (
@@ -52,7 +55,7 @@ const (
 	ERROR_INVALID_SETTINGS = 2
 )
 
-const CONFIG_FILE = "/etc/vgrepo.knf"
+const CONFIG_FILE = "/etc/vgrepo/vgrepo.knf"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
@@ -132,6 +135,8 @@ func processCommand(cmd string, args []string) {
 		listCommand()
 	case CMD_INFO, CMD_INFO_SHORTCUT:
 		infoCommand(args)
+	case CMD_RENDER, CMD_RENDER_SHORTCUT:
+		renderCommand(args)
 	case CMD_HELP:
 		showUsage()
 	default:
@@ -215,6 +220,32 @@ func infoCommand(args []string) {
 	infoTableRender(repository.NewRepository(preferences, name))
 }
 
+
+func renderCommand(args []string) {
+	if len(args) < 1 {
+		terminal.PrintErrorMessage("Error: template must be set")
+		os.Exit(1)
+	}
+
+	output := args[0]
+	template := "/etc/vgrepo/templates/default.tpl"
+
+	if len(args) >= 2 {
+		template = args[1]
+	}
+
+	terminal.PrintActionMessage("Rendering template")
+	err := index.ExportIndex(storage.NewStorage(preferences), template, output)
+
+	if err != nil {
+		terminal.PrintActionStatus(1)
+		terminal.PrintErrorMessage("Error: ", err.Error())
+		os.Exit(1)
+	}
+
+	terminal.PrintActionStatus(0)
+}
+
 // ////////////////////////////////////////////////////////////////////////////////// //
 
 func infoTableRender(r *repository.VRepository) {
@@ -282,6 +313,12 @@ func setUsageCommands(info *usage.Info) {
 		"name",
 	)
 	info.AddCommand(
+		CMD_RENDER,
+		"Create index by given template file",
+		"template",
+		"?output",
+	)
+	info.AddCommand(
 		CMD_HELP,
 		"Display the current help message",
 	)
@@ -309,6 +346,10 @@ func setUsageExamples(info *usage.Info) {
 	info.AddExample(
 		"info powerbox",
 		"Show detailed info about the repository",
+	)
+	info.AddExample(
+		"render index.html /etc/vgrepo/templates/default.tpl",
+		"Create index file by given template with output index.html",
 	)
 }
 

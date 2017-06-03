@@ -129,6 +129,7 @@ Commands
   list                                Show the list of available images
   delete name version provider        Delete the image from the repository
   info name                           Display info of the particular repository
+  render template output              Create index by given template file
   help                                Display the current help message
 
 Options
@@ -150,6 +151,9 @@ Examples
 
   vgrepo info powerbox
   Show detailed info about the repository
+
+  vgrepo render index.html /etc/vgrepo/templates/default.tpl
+  Create index file by given template with output index.html
 ```
 
 ## License
