@@ -152,7 +152,7 @@ Examples
   vgrepo info powerbox
   Show detailed info about the repository
 
-  vgrepo render /etc/vgrepo/templates/default.tpl index.html
+  vgrepo render index.html /etc/vgrepo/templates/default.tpl
   Create index file by given template with output index.html
 ```
 
