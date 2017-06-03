@@ -227,11 +227,11 @@ func renderCommand(args []string) {
 		os.Exit(1)
 	}
 
-	template := args[0]
-	output := "index.html"
+	output := args[0]
+	template := "/etc/vgrepo/templates/default.tpl"
 
 	if len(args) >= 2 {
-		output = args[1]
+		template = args[1]
 	}
 
 	terminal.PrintActionMessage("Rendering template")
@@ -348,7 +348,7 @@ func setUsageExamples(info *usage.Info) {
 		"Show detailed info about the repository",
 	)
 	info.AddExample(
-		"render /etc/vgrepo/templates/default.tpl index.html",
+		"render index.html /etc/vgrepo/templates/default.tpl",
 		"Create index file by given template with output index.html",
 	)
 }
