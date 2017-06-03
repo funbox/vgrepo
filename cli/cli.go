@@ -230,7 +230,7 @@ func renderCommand(args []string) {
 	template := args[0]
 	output := "index.html"
 
-	if len(args) == 2 {
+	if len(args) >= 2 {
 		output = args[1]
 	}
 
