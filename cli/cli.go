@@ -315,8 +315,8 @@ func setUsageCommands(info *usage.Info) {
 	info.AddCommand(
 		CMD_RENDER,
 		"Create index by given template file",
-		"template",
-		"?output",
+		"output",
+		"?template",
 	)
 	info.AddCommand(
 		CMD_HELP,
