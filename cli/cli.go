@@ -239,7 +239,7 @@ func renderCommand(args []string) {
 
 	if err != nil {
 		terminal.PrintActionStatus(1)
-		terminal.PrintErrorMessage("Error: unable to render template")
+		terminal.PrintErrorMessage("Error: ", err.Error())
 		os.Exit(1)
 	}
 
