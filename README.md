@@ -13,6 +13,10 @@ on [HashiCorp Atlas](https://atlas.hashicorp.com/help/intro/features-list).
 `vgrepo` is a simple CLI tool for managing Vagrant repositories. In pair with HTTP server it provides 
 simple way to distribute your images without worries about manual upgrading them on your team.
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/123313.png)](https://asciinema.org/a/123313)
+
 ## Installation
 
 Before the initial install allows git to use redirects for [pkg.re](https://github.com/essentialkaos/pkgre) service (reason why you should do this described [here](https://github.com/essentialkaos/pkgre#git-support)):
