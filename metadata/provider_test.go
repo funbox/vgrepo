@@ -33,11 +33,14 @@ func (p *ProviderSuite) TestCountProviders(c *C) {
 	)
 
 	pl1 := make(VMetadataProvidersList, 0)
+	pl2 := make(VMetadataProvidersList, 0)
 
 	pl1 = append(pl1, p1)
 	pl1 = append(pl1, p2)
 
 	v1 := NewMetadataVersion("1.0.0", pl1)
+	v2 := NewMetadataVersion("1.0.0", pl2)
 
 	c.Assert(2, Equals, v1.CountProviders())
+	c.Assert(0, Equals, v2.CountProviders())
 }

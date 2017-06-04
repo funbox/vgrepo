@@ -16,7 +16,7 @@ type VPackageList []*VPackage
 const PKG_EXTENSION_TYPE = ".box"
 
 // PKG_CHECKSUM_TYPE is a type of supported hash function
-const PKG_CHECKSUM_TYPE  = "sha256"
+const PKG_CHECKSUM_TYPE = "sha256"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
