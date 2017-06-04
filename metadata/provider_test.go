@@ -51,3 +51,31 @@ func (p *ProviderSuite) TestAddProvider(c *C) {
 
 	c.Assert(2, Equals, v1.CountProviders())
 }
+
+//
+func (p *ProviderSuite) TestRemoveProvider(c *C) {
+
+	p1 := NewMetadataProvider(
+		"virtualbox",
+		"checksum1",
+		"sha256",
+		"http://localhost:8080/virtualbox.box",
+	)
+
+	p2 := NewMetadataProvider(
+		"vmware",
+		"checksum2",
+		"sha256",
+		"http://localhost:8080/vmware.box",
+	)
+
+	v1 := NewMetadataVersion("1.0.0", make(VMetadataProvidersList, 0))
+
+	v1.AddProvider(p1)
+	v1.AddProvider(p2)
+
+	v1.RemoveProvider(p1)
+	v1.RemoveProvider(p2)
+
+	c.Assert(0, Equals, v1.CountProviders())
+}

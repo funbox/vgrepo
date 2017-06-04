@@ -17,6 +17,7 @@ vgrepo:
 deps:
 	git config --global http.https://pkg.re.followRedirects true
 	go get -d -v pkg.re/essentialkaos/ek.v9
+	go get -d -v pkg.re/essentialkaos/go-linenoise.v3
 
 deps-test:
 	git config --global http.https://pkg.re.followRedirects true
