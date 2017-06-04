@@ -4,6 +4,7 @@ import (
 	"pkg.re/essentialkaos/ek.v9/path"
 )
 
+// Preferences provides struct of preferences
 type Preferences struct {
 	storagePath string // path to packages and metadata
 	storageURL  string // URL and port to packages and metadata
@@ -33,6 +34,7 @@ func (p *Preferences) MetadataPath() string {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// NewPreferences returns Preferences struct by given parameters
 func NewPreferences(storagePath string, storageURL string) *Preferences {
 	return &Preferences{
 		storagePath,

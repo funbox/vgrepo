@@ -6,8 +6,10 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// VMetadataProvidersList provides a list of VMetadataProvider structs
 type VMetadataProvidersList []*VMetadataProvider
 
+// VMetadataProvider struct contains field of provider
 type VMetadataProvider struct {
 	Name         string `json:"name"`          // name of provider (e.g. virtualbox)
 	URL          string `json:"url"`           // url to downloadable image
@@ -22,7 +24,7 @@ func (v *VMetadataVersion) CountProviders() int {
 	return len(v.Providers)
 }
 
-// isProviderExists returns true if provider exist
+// IsProviderExist returns true if provider exist
 func (v *VMetadataVersion) IsProviderExist(provider *VMetadataProvider) bool {
 	return v.AnyProviders(provider, isEqualProviders)
 }
@@ -57,7 +59,7 @@ func (v *VMetadataVersion) FindProvider(name string) *VMetadataProvider {
 	return nil
 }
 
-// FilterProviders filters list of providers in the metadata by given function
+// FilterProvider filters list of providers in the metadata by given function
 func (v *VMetadataVersion) FilterProvider(provider *VMetadataProvider, f func(*VMetadataProvider, *VMetadataProvider) bool) {
 	providersList := make(VMetadataProvidersList, 0)
 	for _, p := range v.Providers {
@@ -68,7 +70,7 @@ func (v *VMetadataVersion) FilterProvider(provider *VMetadataProvider, f func(*V
 	v.Providers = providersList
 }
 
-// AddVersion adds version to the metadata list
+// AddProvider adds version to the metadata list
 func (v *VMetadataVersion) AddProvider(provider *VMetadataProvider) error {
 	if v.IsProviderExist(provider) {
 		return fmt.Errorf(

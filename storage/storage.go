@@ -9,6 +9,7 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// VStorage provides struct for storage entity
 type VStorage struct {
 	*prefs.Preferences
 	repositories repository.VRepositoryList
@@ -16,6 +17,7 @@ type VStorage struct {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// listDirs returns list of directories by given path
 func listDirs(dir string) []string {
 	return fsutil.List(dir, true, fsutil.ListingFilter{Perms: "DRX"})
 }
@@ -27,6 +29,9 @@ func (s *VStorage) Repositories() repository.VRepositoryList {
 	return s.repositories
 }
 
+// ////////////////////////////////////////////////////////////////////////////////// //
+
+// NewStorage returns VStorage struct by given preferences
 func NewStorage(settings *prefs.Preferences) *VStorage {
 	repositories := make(repository.VRepositoryList, 0)
 

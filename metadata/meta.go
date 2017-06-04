@@ -15,12 +15,12 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-const (
-	MD_EXT_TYPE = ".json" // extension name of metadata file with a leading dot
-)
+// MD_EXT_TYPE provides extension name of metadata file with a leading dot
+const MD_EXT_TYPE = ".json"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// VMetadata provides struct with the preferences and repository
 type VMetadata struct {
 	*prefs.Preferences   // settings
 	*VMetadataRepository // metadata of the repository

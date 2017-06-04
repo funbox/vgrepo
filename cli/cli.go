@@ -18,12 +18,14 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// Application settings
 const (
 	APP  = "vgrepo"
 	VER  = "2.0.0"
 	DESC = "Simple CLI tool for managing Vagrant repositories"
 )
 
+// Available commands and shortcuts
 const (
 	CMD_ADD    = "add"
 	CMD_DELETE = "delete"
@@ -39,22 +41,26 @@ const (
 	CMD_RENDER_SHORTCUT = "r"
 )
 
+// Available preferences
 const (
 	KNF_STORAGE_URL  = "storage:url"
 	KNF_STORAGE_PATH = "storage:path"
 )
 
+// Available arguments
 const (
 	ARG_NO_COLOR = "nc:no-color"
 	ARG_HELP     = "h:help"
 	ARG_VER      = "v:version"
 )
 
+// Errors
 const (
 	ERROR_UNSUPPORTED      = 1
 	ERROR_INVALID_SETTINGS = 2
 )
 
+// CONFIG_FILE provides path to the configuration file
 const CONFIG_FILE = "/etc/vgrepo/vgrepo.knf"
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -69,6 +75,7 @@ var preferences *prefs.Preferences
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// Init runs application
 func Init() {
 	opts, errs := options.Parse(optionsMap)
 

@@ -15,17 +15,20 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-const (
-	REPO_DEFAULT_DIR_PERM = 0755
-	REPO_DEFAULT_PKG_PERM = 0644
-)
+// REPO_DEFAULT_DIR_PERM sets default permissions to new directories
+const REPO_DEFAULT_DIR_PERM = 0755
+
+// REPO_DEFAULT_PKG_PERM sets default permissions to new packages
+const REPO_DEFAULT_PKG_PERM = 0644
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// VRepository provides a struct for repository entity
 type VRepository struct {
 	*metadata.VMetadata
 }
 
+// VRepositoryList is a list of VRepository structs
 type VRepositoryList []*VRepository
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -144,7 +147,7 @@ func (r *VRepository) RemovePackage(pkg *VPackage) error {
 	}
 
 	// Path for deletion
-	var deletedPath string = r.RepoPath(pkg)
+	deletedPath := r.RepoPath(pkg)
 
 	// Delete the provider from the list if the length of the list larger than one.
 	// In other case it make sense to remove the whole version.
@@ -171,6 +174,7 @@ func (r *VRepository) RemovePackage(pkg *VPackage) error {
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// NewRepository returns new VRepository struct by given parameters or exits metadata
 func NewRepository(settings *prefs.Preferences, name string) *VRepository {
 	m := metadata.NewMetadata(
 		settings,
