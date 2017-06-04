@@ -16,31 +16,38 @@ var _ = Suite(&ProviderSuite{})
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
-// TestCount checks counts of providers in the list
-func (p *ProviderSuite) TestCountProviders(c *C) {
+// TestAddProvider checks adding new provider to version struct
+func (p *ProviderSuite) TestAddProvider(c *C) {
+
 	p1 := NewMetadataProvider(
-		"test",
-		"checksum",
-		"sha256",
 		"virtualbox",
+		"checksum1",
+		"sha256",
+		"http://localhost:8080/virtualbox.box",
 	)
 
 	p2 := NewMetadataProvider(
-		"test",
-		"checksum",
-		"sha256",
 		"vmware",
+		"checksum2",
+		"sha256",
+		"http://localhost:8080/vmware.box",
 	)
 
-	pl1 := make(VMetadataProvidersList, 0)
-	pl2 := make(VMetadataProvidersList, 0)
+	p3 := NewMetadataProvider(
+		"virtualbox",
+		"checksum3",
+		"sha256",
+		"http://localhost:8080/virtualbox.box",
+	)
 
-	pl1 = append(pl1, p1)
-	pl1 = append(pl1, p2)
+	v1 := NewMetadataVersion("1.0.0", make(VMetadataProvidersList, 0))
 
-	v1 := NewMetadataVersion("1.0.0", pl1)
-	v2 := NewMetadataVersion("1.0.0", pl2)
+	v1.AddProvider(p1)
+	v1.AddProvider(p2)
 
 	c.Assert(2, Equals, v1.CountProviders())
-	c.Assert(0, Equals, v2.CountProviders())
+
+	v1.AddProvider(p3)
+
+	c.Assert(2, Equals, v1.CountProviders())
 }
