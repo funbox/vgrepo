@@ -8,8 +8,10 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// VMetadataVersionsList is a list of VMetadataVersion structs
 type VMetadataVersionsList []*VMetadataVersion
 
+// VMetadataVersion provides struct for version entity
 type VMetadataVersion struct {
 	Version   string                 `json:"version"`   // version of the image
 	Providers VMetadataProvidersList `json:"providers"` // list of available providers
@@ -62,6 +64,7 @@ func (m *VMetadata) isVersionExist(version *VMetadataVersion) bool {
 	return m.AnyVersions(version, equalVersions)
 }
 
+// CountVersions returns number of available versions
 func (m *VMetadata) CountVersions() int {
 	return len(m.Versions)
 }
@@ -70,18 +73,18 @@ func (m *VMetadata) CountVersions() int {
 func (m *VMetadata) OldestVersion() string {
 	if !m.IsEmptyMeta() {
 		return m.Versions[0].Version
-	} else {
-		return ""
 	}
+
+	return ""
 }
 
 // LatestVersion returns the latest version from the list
 func (m *VMetadata) LatestVersion() *VMetadataVersion {
 	if !m.IsEmptyMeta() {
 		return m.Versions[m.CountVersions()-1]
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
 // ////////////////////////////////////////////////////////////////////////////////// //

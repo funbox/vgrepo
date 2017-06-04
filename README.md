@@ -1,6 +1,10 @@
-# About
+# vgrepo [![Build Status](https://travis-ci.org/gongled/vgrepo.svg?branch=master)](https://travis-ci.org/gongled/vgrepo) [![Go Report Card](https://goreportcard.com/badge/github.com/gongled/vgrepo)](https://goreportcard.com/report/github.com/gongled/vgrepo)
 
-[![Build Status](https://travis-ci.org/gongled/vgrepo.svg?branch=master)](https://travis-ci.org/gongled/vgrepo)
+* [Installation](#installation)
+* [Getting started](#getting-started)
+* [Advanced](#advanced)
+* [Usage](#usage)
+* [License](#license)
 
 HashiCorp company does [Vagrant](https://www.vagrantup.com) for managing the lifecycle of virtual machines. It is great, but they do not 
 provide any open source tools for versioning and discovering your own images without a necessity to have an account 
@@ -8,6 +12,10 @@ on [HashiCorp Atlas](https://atlas.hashicorp.com/help/intro/features-list).
 
 `vgrepo` is a simple CLI tool for managing Vagrant repositories. In pair with HTTP server it provides 
 simple way to distribute your images without worries about manual upgrading them on your team.
+
+## Demo
+
+[![asciicast](https://asciinema.org/a/123313.png)](https://asciinema.org/a/123313)
 
 ## Installation
 
@@ -35,43 +43,43 @@ go get -u github.com/gongled/vgrepo
 directory that contains repositories with their metadata: name, versions and providers of VMs. 
 Parameter `url` is used to discover your images and provides a permanent link to metadata.
 
-    ```
-    [storage]
+```ini
+[storage]
     
-      # Repository URL and port
-      url: http://vagrant.example.tld
+  # Repository URL and port
+  url: http://vagrant.example.tld
     
-      # Repository path to store images and metadata
-      path: /srv/storage
-    ```
+  # Repository path to store images and metadata
+  path: /srv/storage
+```
     
 2. Create directory for the repository path `/srv/storage` and make sure that it is writable.
 
 3. Add the image to the repository:
 
-    ```
-    vgrepo add /path/to/image.box powerbox 1.0.0 virtualbox
-    ```
+```
+vgrepo add /path/to/image.box powerbox 1.0.0 virtualbox
+```
     
 4. Configure NGINX to serve static files from `/srv/storage` directory.
 
-    ```
-    server {
-        listen 80;
+```nginx
+server {
+    listen 80;
         
-        server_name vagrant.example.tld;
+    server_name vagrant.example.tld;
         
-        access_log off;
-        error_log off;
+    access_log off;
+    error_log off;
         
-        root /srv/storage;
+    root /srv/storage;
         
-        location / {
-            autoindex on;
-            expires -1;
-        }
+    location / {
+        autoindex on;
+        expires -1;
     }
-    ```
+}
+```
  
 Done. After adding changes you can specify URL `http://vagrant.example.tld/metadata/powerbox/powerbox.json` in 
 the `config.vm.box_url` to force Vagrant checking updates every time you run command `vagrant up`. 
@@ -83,7 +91,7 @@ Imagine you have an image with the name `powerbox`. The standard path for metada
 You can use well-looking URL instead of direct link to JSON metadata file with the following NGINX 
 configuration of the virtual host:  
 
-```
+```nginx
 server {
     listen 8080;
     
@@ -154,6 +162,7 @@ Examples
 
   vgrepo render index.html /etc/vgrepo/templates/default.tpl
   Create index file by given template with output index.html
+
 ```
 
 ## License

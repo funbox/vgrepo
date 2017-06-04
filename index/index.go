@@ -2,8 +2,8 @@ package index
 
 import (
 	"fmt"
-	"os"
 	"io/ioutil"
+	"os"
 	"text/template"
 
 	"pkg.re/essentialkaos/ek.v9/fsutil"
@@ -13,6 +13,7 @@ import (
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// ExportIndex dumps index to file based on given template file
 func ExportIndex(index *storage.VStorage, templateFile string, outputFile string) error {
 	if templateFile == "" {
 		return fmt.Errorf("Can't use given template")
@@ -42,6 +43,10 @@ func ExportIndex(index *storage.VStorage, templateFile string, outputFile string
 
 	t := template.New("template")
 	t, err = t.Parse(string(tpl[:]))
+
+	if err != nil {
+		return err
+	}
 
 	return t.Execute(fd, index)
 }

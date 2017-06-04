@@ -2,6 +2,7 @@ package metadata
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// VMetadataRepository struct provides data for repository entity
 type VMetadataRepository struct {
 	Name        string                `json:"name"`        // name of the repository
 	Description string                `json:"description"` // description of the repository
