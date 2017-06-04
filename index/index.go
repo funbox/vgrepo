@@ -2,8 +2,8 @@ package index
 
 import (
 	"fmt"
-	"os"
 	"io/ioutil"
+	"os"
 	"text/template"
 
 	"pkg.re/essentialkaos/ek.v9/fsutil"

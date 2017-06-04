@@ -10,10 +10,10 @@ import (
 	"pkg.re/essentialkaos/ek.v9/terminal"
 	"pkg.re/essentialkaos/ek.v9/usage"
 
+	"github.com/gongled/vgrepo/index"
 	"github.com/gongled/vgrepo/prefs"
 	"github.com/gongled/vgrepo/repository"
 	"github.com/gongled/vgrepo/storage"
-	"github.com/gongled/vgrepo/index"
 )
 
 // ////////////////////////////////////////////////////////////////////////////////// //
@@ -219,7 +219,6 @@ func infoCommand(args []string) {
 
 	infoTableRender(repository.NewRepository(preferences, name))
 }
-
 
 func renderCommand(args []string) {
 	if len(args) < 1 {
