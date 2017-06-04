@@ -5,7 +5,7 @@
 
 ########################################################################################
 
-.PHONY = fmt all clean deps
+.PHONY = fmt all clean deps deps-test test
 
 ########################################################################################
 
@@ -17,6 +17,13 @@ vgrepo:
 deps:
 	git config --global http.https://pkg.re.followRedirects true
 	go get -d -v pkg.re/essentialkaos/ek.v9
+
+deps-test:
+	git config --global http.https://pkg.re.followRedirects true
+	go get -d -v pkg.re/check.v1
+
+test:
+	go test -covermode=count ./...
 
 fmt:
 	find . -name "*.go" -exec gofmt -s -w {} \;
