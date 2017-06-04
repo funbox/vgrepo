@@ -1,5 +1,6 @@
 # vgrepo [![Build Status](https://travis-ci.org/gongled/vgrepo.svg?branch=master)](https://travis-ci.org/gongled/vgrepo) [![Go Report Card](https://goreportcard.com/badge/github.com/gongled/vgrepo)](https://goreportcard.com/report/github.com/gongled/vgrepo)
 
+* [Demo](#demo)
 * [Installation](#installation)
 * [Getting started](#getting-started)
 * [Advanced](#advanced)
