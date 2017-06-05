@@ -40,7 +40,7 @@ go get -u github.com/gongled/vgrepo
 
 ## Getting started
 
-1. Specify storage settings in the `/etc/vgrepo.conf` configuration file. Parameter `path` is a 
+1. Specify storage settings in the `/etc/vgrepo/vgrepo.conf` configuration file. Parameter `path` is a 
 directory that contains repositories with their metadata: name, versions and providers of VMs. 
 Parameter `url` is used to discover your images and provides a permanent link to metadata.
 
