@@ -16,109 +16,84 @@ var _ = Suite(&ProviderSuite{})
 
 // ////////////////////////////////////////////////////////////////////////////////// //
 
+// NewVersion returns prepared VMetadataVersion struct
+func (p *ProviderSuite) NewVersion() (*VMetadataVersion) {
+	return NewMetadataVersion("1.0.0", VMetadataProvidersList{
+		NewMetadataProvider(
+			"virtualbox",
+			"ea8f7fabe99ccaf221f5d61af5bb51cd96fbd675",
+			"sha256",
+			"http://localhost:8080/virtualbox.box",
+		),
+		NewMetadataProvider(
+			"docker",
+			"d25de0ec16c8def969d926c1f56977a8085fdaac",
+			"sha256",
+			"http://localhost:8080/docker.box",
+		),
+		NewMetadataProvider(
+			"hyper-v",
+			"40ef470f82420505ae1cdb6982f2e49cd4a1e83d",
+			"sha256",
+			"http://localhost:8080/hyper-v.box",
+		),
+	})
+}
+
 // TestFilterProvides checks FilterProvider function
-func (p *ProviderSuite) TestFilterProvider(c *C) {
+func (p *ProviderSuite) TestFilterProviders(c *C) {
+	version := p.NewVersion()
 
-	p1 := NewMetadataProvider(
-		"virtualbox",
-		"checksum1",
-		"sha256",
-		"http://localhost:8080/virtualbox.box",
-	)
-
-	p2 := NewMetadataProvider(
-		"vmware",
-		"checksum2",
-		"sha256",
-		"http://localhost:8080/vmware.box",
-	)
-
-	p3 := NewMetadataProvider(
+	custom_provider := NewMetadataProvider(
 		"custom",
-		"checksum3",
+		"9288216bccd3c4399b56b0978d3db7fbfc35376b",
 		"sha256",
 		"http://localhost:8080/custom.box",
 	)
 
-	v1 := NewMetadataVersion("1.0.0", make(VMetadataProvidersList, 0))
+	version.FilterProvider(custom_provider, isEqualProviders)
+	c.Assert(0, Equals, version.CountProviders())
 
-	v1.AddProvider(p1)
-	v1.AddProvider(p2)
-	v1.AddProvider(p3)
-
-	v1.FilterProvider(p2, isEqualProviders)
-
-	v2 := NewMetadataVersion("1.0.0", make(VMetadataProvidersList, 0))
-
-	v2.AddProvider(p1)
-	v2.AddProvider(p3)
-
-	v2.FilterProvider(p2, isEqualProviders)
-
-	c.Assert(1, Equals, v1.CountProviders())
-	c.Assert(0, Equals, v2.CountProviders())
+	version.AddProvider(custom_provider)
+	version.FilterProvider(custom_provider, isEqualProviders)
+	c.Assert(1, Equals, version.CountProviders())
 }
 
 // TestAddProvider checks adding new provider to version struct
 func (p *ProviderSuite) TestAddProvider(c *C) {
 
-	p1 := NewMetadataProvider(
-		"virtualbox",
-		"checksum1",
+	version := p.NewVersion()
+
+	custom_provider := NewMetadataProvider(
+		"custom",
+		"9288216bccd3c4399b56b0978d3db7fbfc35376b",
 		"sha256",
-		"http://localhost:8080/virtualbox.box",
+		"http://localhost:8080/custom.box",
 	)
 
-	p2 := NewMetadataProvider(
-		"vmware",
-		"checksum2",
-		"sha256",
-		"http://localhost:8080/vmware.box",
-	)
+	count := version.CountProviders()
 
-	p3 := NewMetadataProvider(
-		"virtualbox",
-		"checksum3",
-		"sha256",
-		"http://localhost:8080/virtualbox.box",
-	)
+	version.AddProvider(custom_provider)
+	version.AddProvider(custom_provider)
 
-	v1 := NewMetadataVersion("1.0.0", make(VMetadataProvidersList, 0))
-
-	v1.AddProvider(p1)
-	v1.AddProvider(p2)
-
-	c.Assert(2, Equals, v1.CountProviders())
-
-	v1.AddProvider(p3)
-
-	c.Assert(2, Equals, v1.CountProviders())
+	c.Assert(count + 1, Equals, version.CountProviders())
 }
 
 // TestRemoveProvider checks removing provider from the version struct
 func (p *ProviderSuite) TestRemoveProvider(c *C) {
+	version := p.NewVersion()
 
-	p1 := NewMetadataProvider(
-		"virtualbox",
-		"checksum1",
+	custom_provider := NewMetadataProvider(
+		"custom",
+		"9288216bccd3c4399b56b0978d3db7fbfc35376b",
 		"sha256",
-		"http://localhost:8080/virtualbox.box",
+		"http://localhost:8080/custom.box",
 	)
 
-	p2 := NewMetadataProvider(
-		"vmware",
-		"checksum2",
-		"sha256",
-		"http://localhost:8080/vmware.box",
-	)
+	count := version.CountProviders()
 
-	v1 := NewMetadataVersion("1.0.0", make(VMetadataProvidersList, 0))
+	version.AddProvider(custom_provider)
+	version.RemoveProvider(custom_provider)
 
-	v1.AddProvider(p1)
-	v1.AddProvider(p2)
-
-	v1.RemoveProvider(p1)
-	v1.RemoveProvider(p2)
-
-	c.Assert(0, Equals, v1.CountProviders())
+	c.Assert(count, Equals, version.CountProviders())
 }
