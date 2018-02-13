@@ -106,7 +106,7 @@ func (m *VMetadata) loadFromURL(metaURL string) (*VMetadataRepository, error) {
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf(
-			"cannot fetch metadata: server return status %s",
+			"cannot fetch metadata: server return status %d",
 			resp.StatusCode,
 		)
 	}
